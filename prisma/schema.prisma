@@ -7,6 +7,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// COMMENTED OUT: Temporarily disabled database models
+/*
 model Watch {
   id          String   @id @default(cuid())
   createdAt   DateTime @default(now())
@@ -118,7 +120,37 @@ enum InquiryStatus {
   RESPONDED
   CLOSED
 }
-// Add this to your existing schema.prisma, after the existing enums
+
+model Content {
+  id           String   @id @default(cuid())
+  contentKey   String   @unique
+  type         String   @db.VarChar(50)
+  page         String   @db.VarChar(100)
+  section      String   @db.VarChar(100)
+  defaultValue String   @db.Text
+  currentValue String   @db.Text
+  updatedAt    DateTime @default(now()) @updatedAt
+  histories    ContentHistory[]
+
+  @@index([contentKey])
+  @@index([page, section])
+}
+
+model ContentHistory {
+  id          String   @id @default(cuid())
+  contentKey  String
+  type        String   @db.VarChar(50)
+  page        String   @db.VarChar(100)
+  section     String   @db.VarChar(100)
+  value       String   @db.Text
+  userId      String
+  createdAt   DateTime @default(now())
+  content     Content  @relation(fields: [contentKey], references: [contentKey])
+
+  @@index([contentKey])
+  @@index([userId])
+}
+*/
 
 enum UserRole {
   ADMIN
@@ -136,8 +168,4 @@ model User {
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  // Optional: Add relations if needed
-  // watches   Watch[]
 }
-
