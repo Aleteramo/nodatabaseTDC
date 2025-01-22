@@ -1,6 +1,5 @@
 // app/api/users/route.ts
 import prisma from '@/lib/prisma'
-import { NextResponse } from 'next/server'
 
 export async function GET() {
   try {
@@ -10,20 +9,20 @@ export async function GET() {
         name: true,
         email: true,
         role: true,
-        projects: {
+        cards: {
           select: {
             id: true,
-            name: true,
+            titleEn: true,
             status: true
           }
         }
       }
     })
-    return NextResponse.json(users)
+    return Response.json(users)
   } catch (error) {
-    return NextResponse.json({ 
+    return Response.json({ 
       error: 'Failed to fetch users', 
-      details: error 
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 })
   }
 }

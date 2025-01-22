@@ -1,8 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    './app/**/*.{js,ts,jsx,tsx,mdx}',
-    './components/**/*.{js,ts,jsx,tsx,mdx}'
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
@@ -75,9 +76,26 @@ module.exports = {
       boxShadow: {
         'watch-card': '0 10px 25px rgba(0, 0, 0, 0.1)',
         'watch-hover': '0 15px 35px rgba(0, 0, 0, 0.15)',
+      },
+      
+      // Dynamic classes
+      transitionDuration: {
+        'custom': 'var(--duration)'
+      },
+      transitionTimingFunction: {
+        'custom': 'var(--easing)'
+      },
+      transitionDelay: {
+        'custom': 'var(--delay)'
       }
-    }
+    },
   },
+  safelist: [
+    'duration-[var(--duration)]',
+    'ease-[var(--easing)]',
+    'delay-[var(--delay)]',
+    'opacity-[var(--opacity)]'
+  ],
   plugins: [
     // Optional: Add typography plugin if you want advanced typography styles
     // require('@tailwindcss/typography'),

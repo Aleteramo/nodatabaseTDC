@@ -1,15 +1,15 @@
-import { getRequestConfig } from 'next-intl/server';
-import { notFound } from 'next/navigation';
+import {getRequestConfig} from 'next-intl/server';
+import {locales, defaultLocale} from '../i18n';
 
-// Define supported locales
-export const locales = ['en', 'it'] as const;
-export type Locale = typeof locales[number];
-
-export default getRequestConfig(async ({ locale }) => {
+export default getRequestConfig(async ({locale}) => {
   // Validate that the incoming `locale` parameter is valid
-  if (!locales.includes(locale as Locale)) notFound();
+  if (!locale || !locales.includes(locale as any)) {
+    locale = defaultLocale;
+  }
 
   return {
-    messages: (await import(`../messages/${locale}.json`)).default
+    locale,
+    messages: (await import(`../messages/${locale}.json`)).default,
+    timeZone: locale === 'it' ? 'Europe/Rome' : 'Europe/London'
   };
 });
