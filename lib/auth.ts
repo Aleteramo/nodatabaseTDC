@@ -1,33 +1,21 @@
-import { NextAuthOptions } from 'next-auth';
-import { JWT } from 'next-auth/jwt';
+// lib/auth.ts
+import bcrypt from 'bcrypt'
+import prisma from './prisma'
 
-// Type augmentation for next-auth
-declare module "next-auth" {
-  interface Session {
-    user: {
-      id: string;
-      username: string;
-      email: string;
-      role: 'ADMIN' | 'USER';
-    }
+export async function authenticateUser(email: string, password: string) {
+  const user = await prisma.user.findUnique({ where: { email } })
+  
+  if (!user) {
+    throw new Error('User not found')
   }
 
-  interface User {
-    id: string;
-    username: string;
-    email: string;
-    role: 'ADMIN' | 'USER';
+  const isPasswordValid = await bcrypt.compare(password, user.passwordHash)
+  
+  if (!isPasswordValid) {
+    throw new Error('Invalid password')
   }
+
+  // Remove sensitive information
+  const { passwordHash, ...userWithoutPassword } = user
+  return userWithoutPassword
 }
-
-declare module "next-auth/jwt" {
-  interface JWT {
-    id: string;
-    username: string;
-    email: string;
-    role: 'ADMIN' | 'USER';
-  }
-}
-
-// Export an empty object if you don't want to export anything specific
-export {};

@@ -1,7 +1,6 @@
 "use client"
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
-import { ThreeDPhotoCarousel } from '../ui/3d-carousel';
 
 interface CollectionProps {
   showTitle?: boolean;
@@ -24,7 +23,7 @@ export default function Collection({ showTitle = true }: CollectionProps) {
       )}
       
       <div className="grid grid-cols-1 gap-8">
-        <ThreeDPhotoCarousel />
+        {/* Removed ThreeDPhotoCarousel component */}
       </div>
     </div>
   );

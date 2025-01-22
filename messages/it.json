@@ -21,10 +21,10 @@
     "copyright": " 2023 The Duke's Chrono. Tutti i diritti riservati."
   },
   "SoldPieces": {
-  "title": "Hall of Fame",
   "description": "Ogni orologio in questo archivio rappresenta l'eccellenza dell'orologeria vintage e la nostra dedizione nel preservare questi tesori senza tempo.",
   "soldOn": "Entrato nella storia il",
-  "noItemsFound": "L'archivio si sta arricchendo"
+  "noItemsFound": "L'archivio si sta arricchendo",
+  "title": "Pezzi Venduti"
 },
   "About": {
   "title": "La Nostra Heritage",
@@ -144,7 +144,20 @@
         "name": "Vacheron Constantin Overseas",
         "description": "Cronografo in acciaio, quadrante blu, bracciale integrato",
         "price": "Venduto"
+      }, 
+      
+      "6": {
+        "SoldPieces": {
+          "title": "Pezzi Venduti",
+          "description": "Una collezione di orologi che hanno trovato la loro nuova casa",
+          "noItemsFound": "Nessun pezzo venduto al momento",
+          "meta": {
+            "title": "The Duke's Chrono - Archivio Orologi Venduti",
+            "description": "Esplora la storia dei nostri orologi di lusso venduti"
+          }
+        }
       }
     }
   }
 }
+

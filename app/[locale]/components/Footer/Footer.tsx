@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from 'next-intl';
-import { SocialLinks } from '@/components/ui/social-links';
+import { SocialLinks } from '../ui/social-links';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin } from 'lucide-react';
 

@@ -1,18 +1,36 @@
 'use server';
 
-import { getTranslations, unstable_setRequestLocale } from 'next-intl/server';
+import { getTranslations } from 'next-intl/server';
+import { unstable_setRequestLocale } from 'next-intl/server';
 import { ProductCard } from '../components/ui/product-card';
-import { getSoldProducts } from '../../../utils/products';
+import { getSoldProducts } from '@/app/utils/products';
+import { locales } from '@/i18n/request';
+import type { Locale } from '@/i18n/request';
 
 type Props = {
-  params: { locale: string }
+  params: { locale: Locale }
 };
+
+// Generate static params for all supported locales
+export async function generateStaticParams() {
+  return locales.map((locale) => ({ locale }));
+}
+
+// Generate metadata for the page
+export async function generateMetadata({ params: { locale } }: Props) {
+  const t = await getTranslations({ locale, namespace: 'SoldPieces' });
+
+  return {
+    title: t('meta.title'),
+    description: t('meta.description'),
+  };
+}
 
 export default async function ArchivePage({ params: { locale } }: Props) {
   unstable_setRequestLocale(locale);
   const t = await getTranslations('SoldPieces');
 
-  const pieces = getSoldProducts();
+  const pieces = await getSoldProducts();
 
   return (
     <div className="min-h-screen bg-black">

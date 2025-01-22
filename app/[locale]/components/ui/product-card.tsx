@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { cn } from "@/lib/utils";
 import { useRef, useState, useEffect } from "react";
-import { Product } from '../../../../utils/products';
+import { Product } from '@/app/utils/products';
 import { useTranslations } from 'next-intl';
 
 interface ProductCardProps {
@@ -119,18 +119,24 @@ export function ProductCard({ product, locale }: ProductCardProps) {
        <div className="w-full h-full grid [grid-area:1/1] mix-blend-soft-light [clip-path:inset(0_0_0_0_round_12px)]">
          <div className="bg-white/5 backdrop-blur-sm">
            <div className="relative w-full h-64 bg-gray-800">
-             <Image 
-               src={product.image} 
-               alt={t(`watches.${product.translationKey}.name`)} 
-               fill 
-               className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300" 
-             />
+             {product.image ? (
+               <Image 
+                 src={product.image} 
+                 alt={t(`watches.${product.translationKey || '1'}.name`)} 
+                 fill 
+                 className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300" 
+               />
+             ) : (
+               <div className="w-full h-full flex items-center justify-center text-gold/50">
+                 {t('noImage')}
+               </div>
+             )}
            </div>
 
            <div className="p-6">
              <div className="flex justify-between items-start mb-2">
                <h2 className="text-2xl font-semibold text-gold truncate">
-                 {t(`watches.${product.translationKey}.name`)}
+                 {t(`watches.${product.translationKey || '1'}.name`)}
                </h2>
                <span className="text-gold/80">
                  {product.status === 'sold' ? t('sold') : t('available')}
@@ -138,11 +144,11 @@ export function ProductCard({ product, locale }: ProductCardProps) {
              </div>
 
              <div className="text-gold/60 text-sm mb-3 space-y-1">
-               <p>{t(`watches.${product.translationKey}.description`)}</p>
+               <p>{t(`watches.${product.translationKey || '1'}.description`)}</p>
              </div>
 
              <p className="text-gold/60 mb-4 line-clamp-2">
-               {t(`watches.${product.translationKey}.description`)}
+               {t(`watches.${product.translationKey || '1'}.description`)}
              </p>
 
              <div className="flex justify-between items-center">
@@ -152,7 +158,7 @@ export function ProductCard({ product, locale }: ProductCardProps) {
                    ? "bg-red-500/20 text-red-300" 
                    : "bg-green-500/20 text-green-300"
                )}>
-                 {t(`watches.${product.translationKey}.price`)}
+                 {t(`watches.${product.translationKey || '1'}.price`)}
                </span>
                {soldDateFormatted && (
                  <span className="text-gold/40 text-sm">

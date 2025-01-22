@@ -1,53 +1,55 @@
-import { Inter } from 'next/font/google'
-import { notFound } from 'next/navigation'
-import { NextIntlClientProvider } from 'next-intl'
-import { getMessages, unstable_setRequestLocale } from 'next-intl/server'
-import '../globals.css'
-import Header from './components/Header/Header'
-import Footer from './components/Footer/Footer'
-import AuthProvider from './components/AuthProvider'
-import WhatsAppButton from './components/ui/WhatsAppButton'
+import { NextIntlClientProvider } from 'next-intl';
+import { ReactNode } from 'react';
+import { notFound } from 'next/navigation';
 
-const inter = Inter({ subsets: ['latin'] })
+// Import messages statically with type assertion
+import enMessages from '@/messages/en.json';
+import itMessages from '@/messages/it.json';
 
-export function generateStaticParams() {
-  return [{ locale: 'en' }, { locale: 'it' }]
-}
+// Import global components
+import Header from './components/Header/Header';
+import Footer from './components/Footer/Footer';
+import NextAuthProvider from './components/providers/SessionProvider';
+import WhatsAppButton from './components/ui/WhatsAppButton';
 
-export default async function LocaleLayout({
-  children,
-  params: { locale }
-}: {
-  children: React.ReactNode
-  params: { locale: string }
-}) {
-  // Imposta il locale per la richiesta
-  unstable_setRequestLocale(locale);
-  
-  // Carica i messaggi per l'internazionalizzazione
-  let messages
-  try {
-    messages = await getMessages({ locale })
-  } catch (error) {
-    notFound()
+type Props = {
+  children: ReactNode;
+  params: { locale: string };
+};
+
+const messages = {
+  en: enMessages,
+  it: itMessages
+} as const;
+
+type Locale = keyof typeof messages;
+
+export default function LocaleLayout({ children, params: { locale } }: Props) {
+  // Validate locale with type narrowing
+  if (!(locale in messages)) {
+    notFound();
   }
 
   return (
     <html lang={locale}>
-      <body className={`${inter.className} bg-black min-h-screen`}>
-        <NextIntlClientProvider messages={messages} locale={locale}>
-          <AuthProvider>
-            <div className="flex flex-col min-h-screen">
-              <Header />
-              <main className="flex-grow pt-16">
-                {children}
-              </main>
-              <Footer />
-              <WhatsAppButton />
-            </div>
-          </AuthProvider>
+      <body className="bg-black text-white">
+        <NextIntlClientProvider 
+          messages={messages[locale as Locale]} 
+          locale={locale}
+        >
+          <NextAuthProvider>
+            <Header />
+            <main>{children}</main>
+            <Footer />
+            <WhatsAppButton />
+          </NextAuthProvider>
         </NextIntlClientProvider>
       </body>
     </html>
-  )
+  );
+}
+
+// For static export
+export function generateStaticParams() {
+  return Object.keys(messages).map(locale => ({ locale }));
 }
