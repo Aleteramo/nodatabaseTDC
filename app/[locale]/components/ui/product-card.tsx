@@ -94,8 +94,7 @@ export function ProductCard({ product, locale, isAdmin = false, onProductUpdate,
         }
     }, [isAdmin]);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
+    const handleInputChange = (name: string, value: string) => {
         setEditedProduct(prev => ({ ...prev, [name]: value }));
     };
 
@@ -264,101 +263,118 @@ export function ProductCard({ product, locale, isAdmin = false, onProductUpdate,
                         />
                     </div>
 
-                    <div className="flex flex-col">
-                        <label htmlFor={`titleEn-${product.id}`} className="block text-sm font-medium text-gold">English Title</label>
-                        <input
-                            type="text"
-                            id={`titleEn-${product.id}`}
-                            name="titleEn"
-                            value={editedProduct.titleEn}
-                            onChange={handleInputChange}
-                            className="mt-1 p-2 w-full bg-black border border-gold/50 rounded-md text-gold focus:border-gold focus:ring-1 focus:ring-gold focus:ring-opacity-50"
-                        />
-                        
-                        <label htmlFor={`titleIt-${product.id}`} className="block text-sm font-medium text-gold mt-4">Italian Title</label>
-                        <input
-                            type="text"
-                            id={`titleIt-${product.id}`}
-                            name="titleIt"
-                            value={editedProduct.titleIt}
-                            onChange={handleInputChange}
-                            className="mt-1 p-2 w-full bg-black border border-gold/50 rounded-md text-gold focus:border-gold focus:ring-1 focus:ring-gold focus:ring-opacity-50"
-                        />
-                    </div>
+                    <div className="space-y-4 mt-4">
+                        <div>
+                            <label className="block text-gold mb-2" htmlFor="titleEn">
+                                {t('titleEn')}
+                            </label>
+                            <input
+                                type="text"
+                                id="titleEn"
+                                value={editedProduct.titleEn || ''}
+                                onChange={(e) => handleInputChange('titleEn', e.target.value)}
+                                className="w-full p-2 bg-black border border-gold/30 rounded text-gold focus:border-gold focus:outline-none"
+                            />
+                        </div>
 
-                    <div className="flex flex-col">
-                        <label htmlFor={`price-${product.id}`} className="block text-sm font-medium text-gold">Price</label>
-                        <input
-                            type="number"
-                            id={`price-${product.id}`}
-                            name="price"
-                            value={editedProduct.price !== undefined ? editedProduct.price.toString() : ''}
-                            onChange={handlePriceChange}
-                            className="mt-1 p-2 block w-full rounded-md border-gold/50 shadow-sm focus:border-gold focus:ring-gold bg-black text-gold sm:text-sm"
-                        />
-                    </div>
+                        <div>
+                            <label className="block text-gold mb-2" htmlFor="titleIt">
+                                {t('titleIt')}
+                            </label>
+                            <input
+                                type="text"
+                                id="titleIt"
+                                value={editedProduct.titleIt || ''}
+                                onChange={(e) => handleInputChange('titleIt', e.target.value)}
+                                className="w-full p-2 bg-black border border-gold/30 rounded text-gold focus:border-gold focus:outline-none"
+                            />
+                        </div>
 
-                    <div className="flex flex-col">
-                        <label htmlFor={`status-${product.id}`} className="block text-sm font-medium text-gold">Status</label>
-                        <select
-                            id={`status-${product.id}`}
-                            name="status"
-                            value={editedProduct.status || 'AVAILABLE'}
-                            onChange={handleStatusChange}
-                            className="mt-1 p-2 block w-full rounded-md border-gold/50 shadow-sm focus:border-gold focus:ring-gold bg-black text-gold sm:text-sm"
-                        >
-                            <option value="AVAILABLE">{t('available')}</option>
-                            <option value="SOLD">{t('sold')}</option>
-                        </select>
-                    </div>
-                    {/* Input per l'immagine */}
-                    <div className="flex flex-col mt-2">
-                        <label htmlFor={`image-${product.id}`} className="block text-sm font-medium text-gold">Image</label>
-                        <input
-                            ref={imageInputRef}
-                            type="file"
-                            id={`image-${product.id}`}
-                            name="image"
-                            accept="image/*"
-                            onChange={handleImageChange}
-                            className="mt-1 p-2 block w-full rounded-md border-gold/50 shadow-sm focus:border-gold focus:ring-gold bg-black text-gold sm:text-sm"
-                        />
-                    </div>
+                        <div>
+                            <label className="block text-gold mb-2" htmlFor="descriptionEn">
+                                {t('descriptionEn')}
+                            </label>
+                            <textarea
+                                id="descriptionEn"
+                                value={editedProduct.descriptionEn || ''}
+                                onChange={(e) => handleInputChange('descriptionEn', e.target.value)}
+                                rows={3}
+                                className="w-full p-2 bg-black border border-gold/30 rounded text-gold focus:border-gold focus:outline-none resize-none"
+                            />
+                        </div>
 
-                    <div className="flex justify-end gap-2 mt-4">
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                handleSubmit(e);
-                            }}
-                            disabled={isSaving}
-                            className={cn(
-                                "px-4 py-2 rounded-md bg-gold text-black font-semibold hover:bg-gold/80 focus:outline-none focus:ring-2 focus:ring-gold focus:ring-opacity-50",
-                                isSaving && "opacity-50 cursor-not-allowed"
-                            )}
-                        >
-                            {isSaving ? t('saving') + "..." : t('save')}
-                        </button>
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                handleCancel();
-                            }}
-                            disabled={isSaving}
-                            className="px-4 py-2 rounded-md text-gold border border-gold font-semibold hover:bg-gold/10 focus:outline-none focus:ring-2 focus:ring-gold focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {t('cancel')}
-                        </button>
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                handleDelete();
-                            }}
-                            disabled={isSaving}
-                            className="px-4 py-2 rounded-md text-red-500 border border-red-500 font-semibold hover:bg-red-500/10 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {t('delete')}
-                        </button>
+                        <div>
+                            <label className="block text-gold mb-2" htmlFor="descriptionIt">
+                                {t('descriptionIt')}
+                            </label>
+                            <textarea
+                                id="descriptionIt"
+                                value={editedProduct.descriptionIt || ''}
+                                onChange={(e) => handleInputChange('descriptionIt', e.target.value)}
+                                rows={3}
+                                className="w-full p-2 bg-black border border-gold/30 rounded text-gold focus:border-gold focus:outline-none resize-none"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-gold mb-2" htmlFor="price">
+                                {t('price')}
+                            </label>
+                            <input
+                                type="number"
+                                id="price"
+                                value={editedProduct.price || ''}
+                                onChange={(e) => handlePriceChange(e)}
+                                className="w-full p-2 bg-black border border-gold/30 rounded text-gold focus:border-gold focus:outline-none"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-gold mb-2" htmlFor="status">
+                                {t('status')}
+                            </label>
+                            <select
+                                id="status"
+                                value={editedProduct.status}
+                                onChange={(e) => handleStatusChange(e)}
+                                className="w-full p-2 bg-black border border-gold/30 rounded text-gold focus:border-gold focus:outline-none"
+                            >
+                                <option value="AVAILABLE">{t('available')}</option>
+                                <option value="SOLD">{t('sold')}</option>
+                            </select>
+                        </div>
+
+                        <div className="flex justify-end space-x-4 mt-6">
+                            <button
+                                onClick={handleCancel}
+                                className="px-4 py-2 rounded-md text-gold border border-gold font-semibold hover:bg-gold/10 focus:outline-none focus:ring-2 focus:ring-gold focus:ring-opacity-50"
+                            >
+                                {t('cancel')}
+                            </button>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleSubmit(e);
+                                }}
+                                disabled={isSaving}
+                                className={cn(
+                                    "px-4 py-2 rounded-md bg-gold text-black font-semibold hover:bg-gold/90 focus:outline-none focus:ring-2 focus:ring-gold focus:ring-opacity-50",
+                                    isSaving && "opacity-50 cursor-not-allowed"
+                                )}
+                            >
+                                {isSaving ? t('saving') + "..." : t('save')}
+                            </button>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDelete();
+                                }}
+                                disabled={isSaving}
+                                className="px-4 py-2 rounded-md text-red-500 border border-red-500 font-semibold hover:bg-red-500/10 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {t('delete')}
+                            </button>
+                        </div>
                     </div>
                 </div>
             ) : isAdmin ? (

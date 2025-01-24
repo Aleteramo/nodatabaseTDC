@@ -780,6 +780,9 @@ video {
 .mt-auto {
   margin-top: auto;
 }
+.mt-6 {
+  margin-top: 1.5rem;
+}
 .line-clamp-2 {
   overflow: hidden;
   display: -webkit-box;
@@ -967,6 +970,9 @@ video {
   -webkit-user-select: none;
      -moz-user-select: none;
           user-select: none;
+}
+.resize-none {
+  resize: none;
 }
 .resize {
   resize: both;
@@ -1759,6 +1765,9 @@ video {
 }
 .\[transform\:rotateY\(var\(--r-x\)\)_rotateX\(var\(--r-y\)\)\] {
   transform: rotateY(var(--r-x)) rotateX(var(--r-y));
+}
+.\[transform\:rotateY\(var\(--r-y\)\)_rotateX\(var\(--r-x\)\)\] {
+  transform: rotateY(var(--r-y)) rotateX(var(--r-x));
 }
 
 @font-face {

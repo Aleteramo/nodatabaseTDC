@@ -24,10 +24,10 @@
     "dashboard": "Dashboard",
     "createProduct": "Crea Prodotto",
     "cancel": "Annulla",
-    "titleEn": "Titolo in inglese",
-    "titleIt": "Titolo in italiano",
-    "descriptionEn": "Descrizione in inglese",
-    "descriptionIt": "Descrizione in italiano",
+    "titleEn": "Titolo (Inglese)",
+    "titleIt": "Titolo (Italiano)",
+    "descriptionEn": "Descrizione (Inglese)",
+    "descriptionIt": "Descrizione (Italiano)",
     "price": "Prezzo",
     "brand": "Marca",
     "model": "Modello",
@@ -171,27 +171,32 @@
     "watches": {
       "1": {
         "name": "Rolex Daytona",
-        "description": "Cronografo automatico in acciaio, quadrante nero con contatori argento",
+        "descriptionEn": "Automatic chronograph in steel, black dial with silver counters",
+        "descriptionIt": "Cronografo automatico in acciaio, quadrante nero con contatori argento",
         "price": "Su richiesta"
       },
       "2": {
         "name": "Patek Philippe Calatrava",
-        "description": "Cassa in oro rosa, quadrante opalino, movimento automatico",
+        "descriptionEn": "Rose gold case, opaline dial, automatic movement",
+        "descriptionIt": "Cassa in oro rosa, quadrante opalino, movimento automatico",
         "price": "Su richiesta"
       },
       "3": {
         "name": "Audemars Piguet Royal Oak",
-        "description": "Cassa e bracciale in acciaio, quadrante blu \"Grande Tapisserie\"",
+        "descriptionEn": "Steel case and bracelet, blue \"Grande Tapisserie\" dial",
+        "descriptionIt": "Cassa e bracciale in acciaio, quadrante blu \"Grande Tapisserie\"",
         "price": "Su richiesta"
       },
       "4": {
         "name": "Cartier Santos",
-        "description": "Cassa in acciaio e oro giallo, quadrante bianco, movimento automatico",
+        "descriptionEn": "Steel and yellow gold case, white dial, automatic movement",
+        "descriptionIt": "Cassa in acciaio e oro giallo, quadrante bianco, movimento automatico",
         "price": "Venduto"
       },
       "5": {
         "name": "Vacheron Constantin Overseas",
-        "description": "Cronografo in acciaio, quadrante blu, bracciale integrato",
+        "descriptionEn": "Steel chronograph, blue dial, integrated bracelet",
+        "descriptionIt": "Cronografo in acciaio, quadrante blu, bracciale integrato",
         "price": "Venduto"
       }
     }
