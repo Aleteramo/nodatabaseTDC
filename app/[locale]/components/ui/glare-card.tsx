@@ -60,12 +60,25 @@ export const GlareCard = ({
     "--bg-x": "50%",
     "--bg-y": "50%",
     "--duration": "300ms",
-    "--foil-size": "100%",
-    "--opacity": "0",
-    "--radius": "12px",
-    "--easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+    "--foil-size": "120%", // Increased foil size for more glare effect
+    "--opacity": "0.1", // Increased opacity for more visibility
+    "--radius": "48px",
+    "--easing": "ease",
     "--transition": "var(--duration) var(--easing)",
   } as any;
+
+  const backgroundStyle = {
+    "--step": "5%",
+    "--foil-svg": `url("data:image/svg+xml,%3Csvg width='26' height='26' viewBox='0 0 26 26' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2.99994 3.419C2.99994 3.419 21.6142 7.43646 22.7921 12.153C23.97 16.8695 3.41838 23.0306 3.41838 23.0306' stroke='white' stroke-width='5' stroke-miterlimit='3.86874' stroke-linecap='round' style='mix-blend-mode:darken'/%3E%3C/svg%3E")`,
+    "--pattern": "var(--foil-svg) center/100% no-repeat",
+    "--rainbow":
+        "repeating-linear-gradient( 0deg,rgb(255,119,115) calc(var(--step) * 1),rgba(255,237,95,1) calc(var(--step) * 2),rgba(168,255,95,1) calc(var(--step) * 3),rgba(131,255,247,1) calc(var(--step) * 4),rgba(120,148,255,1) calc(var(--step) * 5),rgb(216,117,255) calc(var(--step) * 6),rgb(255,119,115) calc(var(--step) * 7) ) 0% var(--bg-y)/200% 700% no-repeat",
+    "--diagonal":
+        "repeating-linear-gradient( 128deg,#0e152e 0%,hsl(180,10%,60%) 3.8%,hsl(180,10%,60%) 4.5%,hsl(180,10%,60%) 5.2%,#0e152e 10%,#0e152e 12% ) var(--bg-x) var(--bg-y)/300% no-repeat",
+    "--shade":
+        "radial-gradient( farthest-corner circle at var(--m-x) var(--m-y),rgba(255,255,255,0.2) 12%,rgba(255,255,255,0.25) 20%,rgba(255,255,255,0.35) 120% ) var(--bg-x) var(--bg-y)/300% no-repeat",
+    backgroundBlendMode: "hue, hue, hue, overlay",
+  };
 
   return (
     <div
@@ -112,6 +125,13 @@ export const GlareCard = ({
           className="w-full h-full grid [grid-area:1/1] mix-blend-soft-light opacity-[var(--opacity)] transition-opacity duration-[var(--duration)] ease-[var(--easing)] delay-[var(--delay)]"
           style={{
             background: "radial-gradient(circle at var(--m-x) var(--m-y), rgba(255,255,255,0.1) 0%, transparent 50%)"
+          }}
+        />
+        <div 
+          className="w-full h-full grid [grid-area:1/1] mix-blend-soft-light opacity-[var(--opacity)] transition-opacity duration-[var(--duration)] ease-[var(--easing)] delay-[var(--delay)]"
+          style={{
+            ...backgroundStyle,
+            background: `var(--rainbow), var(--diagonal), var(--shade), var(--pattern)`
           }}
         />
       </div>

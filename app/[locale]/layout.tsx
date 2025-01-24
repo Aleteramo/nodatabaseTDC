@@ -1,4 +1,5 @@
 import { NextIntlClientProvider } from 'next-intl';
+import { SpeedInsights } from "@vercel/speed-insights/next"; // Import SpeedInsights
 import { ReactNode } from 'react';
 import { notFound } from 'next/navigation';
 import { unstable_setRequestLocale } from 'next-intl/server'; // Import unstable_setRequestLocale
@@ -31,7 +32,7 @@ export default function LocaleLayout({ children, params: { locale } }: Props) {
     notFound();
   }
 
-  unstable_setRequestLocale(locale); // <---- ADD THIS LINE HERE
+  unstable_setRequestLocale(locale); // Set the request locale
 
   return (
     <html lang={locale} className="bg-black">
@@ -41,6 +42,7 @@ export default function LocaleLayout({ children, params: { locale } }: Props) {
           locale={locale}
         >
           <NextAuthProvider>
+            <SpeedInsights /> {/* Add SpeedInsights here */}
             <div className="flex flex-col min-h-screen bg-black">
               <Header />
               <main className="flex-grow bg-black pb-16 sm:pb-0">{children}</main>

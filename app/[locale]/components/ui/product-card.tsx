@@ -33,6 +33,7 @@ export function ProductCard({ product, locale, isAdmin = false, onProductUpdate,
     const imageInputRef = useRef<HTMLInputElement>(null);
     const refElement = useRef<HTMLDivElement>(null);
     const [rotation, setRotation] = useState({ x: 0, y: 0 });
+    const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
     useEffect(() => {
         setEditedProduct({
@@ -344,6 +345,21 @@ export function ProductCard({ product, locale, isAdmin = false, onProductUpdate,
                             </select>
                         </div>
 
+                        <div>
+                            <label className="block text-gold mb-2" htmlFor="image">
+                                {t('image')}
+                            </label>
+                            <input
+                                ref={imageInputRef}
+                                type="file"
+                                id="image"
+                                name="image"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                className="w-full p-2 bg-black border border-gold/30 rounded text-gold focus:border-gold focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gold/10 file:text-gold hover:file:bg-gold/20"
+                            />
+                        </div>
+
                         <div className="flex justify-end space-x-4 mt-6">
                             <button
                                 onClick={handleCancel}
@@ -390,6 +406,21 @@ export function ProductCard({ product, locale, isAdmin = false, onProductUpdate,
                                 style={{ objectFit: 'contain' }}
                                 className="w-full h-full transition-transform duration-300"
                             />
+                            {/* Badge di stato */}
+                            <div className="absolute top-4 right-4">
+                                <span className={cn(
+                                    "inline-flex items-center px-4 py-1 rounded-full text-sm font-medium shadow-lg backdrop-blur-md",
+                                    product.status === 'SOLD'
+                                        ? "bg-red-500/80 text-white ring-1 ring-red-500"
+                                        : "bg-emerald-500/80 text-white ring-1 ring-emerald-500"
+                                )}>
+                                    <span className={cn(
+                                        "w-2 h-2 rounded-full mr-2 animate-pulse",
+                                        product.status === 'SOLD' ? "bg-red-200" : "bg-emerald-200"
+                                    )} />
+                                    {product.status === 'SOLD' ? t('sold') : t('available')}
+                                </span>
+                            </div>
                         </div>
 
                         <div className="p-6 flex-1 flex flex-col">
@@ -397,20 +428,20 @@ export function ProductCard({ product, locale, isAdmin = false, onProductUpdate,
                                 {locale === 'en' ? product.titleEn : product.titleIt}
                             </h2>
                             
-                            <div className="flex justify-between items-start mb-2">
-                                <span className={cn(
-                                    "inline-block px-3 py-1 rounded-full text-sm",
-                                    product.status === 'SOLD'
-                                        ? "bg-red-500/20 text-red-300"
-                                        : "bg-green-500/20 text-green-300"
-                                )}>
-                                    {product.status === 'SOLD' ? t('sold') : t('available')}
-                                </span>
+                            <div 
+                                className={cn(
+                                    "text-gold/60 text-sm mb-3 relative transition-all duration-300 ease-in-out cursor-pointer",
+                                    !isDescriptionExpanded && "max-h-[60px] overflow-hidden"
+                                )}
+                                onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                            >
+                                <p>{locale === 'en' ? product.descriptionEn : product.descriptionIt}</p>
+                                {!isDescriptionExpanded && (
+                                    <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-black to-transparent" />
+                                )}
                             </div>
 
-                            <div className="text-gold/60 text-sm mb-3">
-                                <p>{locale === 'en' ? product.descriptionEn : product.descriptionIt}</p>
-                            </div>
+                            <div className="w-full h-px bg-gold/20 my-4" />
 
                             <div className="flex justify-between items-center mt-auto">
                                 <span className="text-gold font-semibold">
@@ -444,9 +475,9 @@ export function ProductCard({ product, locale, isAdmin = false, onProductUpdate,
                     </div>
                 </div>
             ) : (
-                <GlareCard className="bg-black group">
+                <div className="bg-black border border-gold/30 rounded-lg overflow-hidden hover:border-gold/60 transition-all duration-300">
                     <div className="flex flex-col h-full">
-                        <div className="relative w-full h-64 bg-gray-800 overflow-hidden">
+                        <div className="relative w-full h-64 bg-gray-800 overflow-hidden group">
                             <Image
                                 src={imageUrl}
                                 alt={imageAlt}
@@ -454,56 +485,67 @@ export function ProductCard({ product, locale, isAdmin = false, onProductUpdate,
                                 width={500}
                                 height={300}
                                 style={{ objectFit: 'contain' }}
-                                className="w-full h-full transition-transform duration-500 group-hover:scale-105"
+                                className="w-full h-full transition-transform duration-300 group-hover:scale-105"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                        </div>
-
-                        <div className="p-6 flex-1 flex flex-col relative">
-                            {/* Status Badge - Absolute positioned */}
-                            <div className="absolute -top-4 right-6">
-                                <span className={cn(
-                                    "inline-block px-4 py-1 rounded-full text-sm font-medium shadow-lg",
+                            {/* Improved status badge */}
+                            <div className="absolute top-0 right-0 p-4">
+                                <div className={cn(
+                                    "relative flex items-center px-4 py-1.5 rounded-full text-sm font-medium",
+                                    "before:absolute before:inset-0 before:rounded-full before:backdrop-blur-md before:backdrop-saturate-150 before:-z-10",
                                     product.status === 'SOLD'
-                                        ? "bg-red-500 text-white"
-                                        : "bg-emerald-500 text-white"
+                                        ? "text-white before:bg-red-500/30 ring-1 ring-red-400/50"
+                                        : "text-white before:bg-emerald-500/30 ring-1 ring-emerald-400/50"
                                 )}>
+                                    <span className={cn(
+                                        "w-1.5 h-1.5 rounded-full mr-2",
+                                        product.status === 'SOLD' 
+                                            ? "bg-red-400 animate-pulse" 
+                                            : "bg-emerald-400 animate-[pulse_2s_ease-in-out_infinite]"
+                                    )} />
                                     {product.status === 'SOLD' ? t('sold') : t('available')}
-                                </span>
-                            </div>
-
-                            {/* Title with gradient background on hover */}
-                            <h2 className="text-2xl font-bold text-gold mb-2 transition-colors duration-300 group-hover:text-white">
-                                {locale === 'en' ? product.titleEn : product.titleIt}
-                            </h2>
-                            
-                            {/* Description with line clamp */}
-                            <div className="text-gold/60 text-sm mb-4 line-clamp-2 group-hover:line-clamp-none transition-all duration-300">
-                                <p>{locale === 'en' ? product.descriptionEn : product.descriptionIt}</p>
-                            </div>
-
-                            {/* Price section with enhanced visibility */}
-                            <div className="mt-auto pt-4 border-t border-gold/10">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-2xl font-bold text-gold group-hover:text-white transition-colors duration-300">
-                                        {product.price 
-                                            ? new Intl.NumberFormat(locale, {
-                                                style: 'currency',
-                                                currency: 'EUR',
-                                                maximumFractionDigits: 0
-                                            }).format(product.price)
-                                            : t('priceOnRequest')}
-                                    </span>
-                                    {soldDateFormatted && (
-                                        <span className="text-gold/40 text-sm">
-                                            {soldDateFormatted}
-                                        </span>
-                                    )}
                                 </div>
                             </div>
                         </div>
+
+                        <div className="p-6 flex-1 flex flex-col">
+                            <h2 className="text-xl font-bold text-gold mb-2">
+                                {locale === 'en' ? product.titleEn : product.titleIt}
+                            </h2>
+                            
+                            <div 
+                                className={cn(
+                                    "text-gold/60 text-sm mb-3 relative transition-all duration-300 ease-in-out cursor-pointer",
+                                    !isDescriptionExpanded && "max-h-[60px] overflow-hidden"
+                                )}
+                                onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                            >
+                                <p>{locale === 'en' ? product.descriptionEn : product.descriptionIt}</p>
+                                {!isDescriptionExpanded && (
+                                    <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-black to-transparent" />
+                                )}
+                            </div>
+
+                            <div className="w-full h-px bg-gold/20 my-4" />
+
+                            <div className="flex justify-between items-center mt-auto">
+                                <span className="text-gold font-semibold">
+                                    {product.price 
+                                        ? new Intl.NumberFormat(locale, {
+                                            style: 'currency',
+                                            currency: 'EUR',
+                                            maximumFractionDigits: 0
+                                        }).format(product.price)
+                                        : t('priceOnRequest')}
+                                </span>
+                                {soldDateFormatted && (
+                                    <span className="text-gold/40 text-sm">
+                                        {soldDateFormatted}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
                     </div>
-                </GlareCard>
+                </div>
             )}
         </div>
     );
