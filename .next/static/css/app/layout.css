@@ -710,6 +710,9 @@ video {
 .top-\[20\%\] {
   top: 20%;
 }
+.-top-4 {
+  top: -1rem;
+}
 .isolate {
   isolation: isolate;
 }
@@ -776,6 +779,12 @@ video {
 }
 .mt-auto {
   margin-top: auto;
+}
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 .block {
   display: block;
@@ -1221,6 +1230,14 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(2 6 23 / var(--tw-bg-opacity, 1));
 }
+.bg-emerald-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(16 185 129 / var(--tw-bg-opacity, 1));
+}
+.bg-red-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(239 68 68 / var(--tw-bg-opacity, 1));
+}
 .bg-\[radial-gradient\(circle_at_center\2c _var\(--tw-gradient-stops\)\)\] {
   background-image: radial-gradient(circle at center, var(--tw-gradient-stops));
 }
@@ -1279,6 +1296,11 @@ video {
 .from-gold\/5 {
   --tw-gradient-from: rgb(212 175 55 / 0.05) var(--tw-gradient-from-position);
   --tw-gradient-to: rgb(212 175 55 / 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+.from-black\/80 {
+  --tw-gradient-from: rgb(0 0 0 / 0.8) var(--tw-gradient-from-position);
+  --tw-gradient-to: rgb(0 0 0 / 0) var(--tw-gradient-to-position);
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
 }
 .via-black\/50 {
@@ -1410,6 +1432,9 @@ video {
 }
 .pt-8 {
   padding-top: 2rem;
+}
+.pt-4 {
+  padding-top: 1rem;
 }
 .text-center {
   text-align: center;
@@ -1705,11 +1730,17 @@ video {
 .\[background-blend-mode\:hue_hue_hue_overlay\] {
   background-blend-mode: hue hue hue overlay;
 }
+.\[background-blend-mode\:hue_hue_overlay\] {
+  background-blend-mode: hue hue overlay;
+}
 .\[background\:radial-gradient\(farthest-corner_circle_at_var\(--m-x\)_var\(--m-y\)\2c _rgba\(255\2c 255\2c 255\2c 0\.8\)_10\%\2c _rgba\(255\2c 255\2c 255\2c 0\.65\)_20\%\2c _rgba\(255\2c 255\2c 255\2c 0\)_90\%\)\] {
   background: radial-gradient(farthest-corner circle at var(--m-x) var(--m-y), rgba(255,255,255,0.8) 10%, rgba(255,255,255,0.65) 20%, rgba(255,255,255,0) 90%);
 }
 .\[background\:var\(--pattern\)\2c _var\(--rainbow\)\2c _var\(--diagonal\)\2c _var\(--shade\)\] {
   background: var(--pattern), var(--rainbow), var(--diagonal), var(--shade);
+}
+.\[background\:var\(--rainbow\)\2c _var\(--diagonal\)\2c _var\(--shade\)\] {
+  background: var(--rainbow), var(--diagonal), var(--shade);
 }
 .\[clip-path\:inset\(0_0_0_0_round_var\(--radius\)\)\] {
   clip-path: inset(0 0 0 0 round var(--radius));
@@ -1889,9 +1920,19 @@ body {
   background-blend-mode: soft-light, hue, hard-light;
 }
 
+.after\:\[background-position\:0\%_var\(--bg-y\)\2c _calc\(var\(--bg-x\)\*_-1\)_calc\(var\(--bg-y\)\*_-1\)\2c _var\(--bg-x\)_var\(--bg-y\)\]::after {
+  content: var(--tw-content);
+  background-position: 0% var(--bg-y), calc(var(--bg-x) * -1) calc(var(--bg-y) * -1), var(--bg-x) var(--bg-y);
+}
+
 .after\:\[background-position\:center\2c _0\%_var\(--bg-y\)\2c _calc\(var\(--bg-x\)\*_-1\)_calc\(var\(--bg-y\)\*_-1\)\2c _var\(--bg-x\)_var\(--bg-y\)\]::after {
   content: var(--tw-content);
   background-position: center, 0% var(--bg-y), calc(var(--bg-x) * -1) calc(var(--bg-y) * -1), var(--bg-x) var(--bg-y);
+}
+
+.after\:\[background-size\:200\%_400\%\2c _800\%\2c _200\%\]::after {
+  content: var(--tw-content);
+  background-size: 200% 400%, 800%, 200%;
 }
 
 .after\:\[background-size\:var\(--foil-size\)\2c _200\%_400\%\2c _800\%\2c _200\%\]::after {
@@ -2027,9 +2068,22 @@ body {
   opacity: 0.5;
 }
 
+.group:hover .group-hover\:line-clamp-none {
+  overflow: visible;
+  display: block;
+  -webkit-box-orient: horizontal;
+  -webkit-line-clamp: none;
+}
+
 .group:hover .group-hover\:scale-110 {
   --tw-scale-x: 1.1;
   --tw-scale-y: 1.1;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.group:hover .group-hover\:scale-105 {
+  --tw-scale-x: 1.05;
+  --tw-scale-y: 1.05;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
@@ -2043,6 +2097,11 @@ body {
 
 .group:hover .group-hover\:text-gold\/90 {
   color: rgb(212 175 55 / 0.9);
+}
+
+.group:hover .group-hover\:text-white {
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity, 1));
 }
 
 .group:hover .group-hover\:opacity-100 {

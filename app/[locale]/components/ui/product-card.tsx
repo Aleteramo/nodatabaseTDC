@@ -428,7 +428,7 @@ export function ProductCard({ product, locale, isAdmin = false, onProductUpdate,
                     </div>
                 </div>
             ) : (
-                <GlareCard className="bg-black">
+                <GlareCard className="bg-black group">
                     <div className="flex flex-col h-full">
                         <div className="relative w-full h-64 bg-gray-800 overflow-hidden">
                             <Image
@@ -438,45 +438,52 @@ export function ProductCard({ product, locale, isAdmin = false, onProductUpdate,
                                 width={500}
                                 height={300}
                                 style={{ objectFit: 'contain' }}
-                                className="w-full h-full transition-transform duration-300"
+                                className="w-full h-full transition-transform duration-500 group-hover:scale-105"
                             />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         </div>
 
-                        <div className="p-6 flex-1 flex flex-col">
-                            <h2 className="text-xl font-bold text-gold mb-2">
-                                {locale === 'en' ? product.titleEn : product.titleIt}
-                            </h2>
-                            
-                            <div className="flex justify-between items-start mb-2">
+                        <div className="p-6 flex-1 flex flex-col relative">
+                            {/* Status Badge - Absolute positioned */}
+                            <div className="absolute -top-4 right-6">
                                 <span className={cn(
-                                    "inline-block px-3 py-1 rounded-full text-sm",
+                                    "inline-block px-4 py-1 rounded-full text-sm font-medium shadow-lg",
                                     product.status === 'SOLD'
-                                        ? "bg-red-500/20 text-red-300"
-                                        : "bg-green-500/20 text-green-300"
+                                        ? "bg-red-500 text-white"
+                                        : "bg-emerald-500 text-white"
                                 )}>
                                     {product.status === 'SOLD' ? t('sold') : t('available')}
                                 </span>
                             </div>
 
-                            <div className="text-gold/60 text-sm mb-3">
+                            {/* Title with gradient background on hover */}
+                            <h2 className="text-2xl font-bold text-gold mb-2 transition-colors duration-300 group-hover:text-white">
+                                {locale === 'en' ? product.titleEn : product.titleIt}
+                            </h2>
+                            
+                            {/* Description with line clamp */}
+                            <div className="text-gold/60 text-sm mb-4 line-clamp-2 group-hover:line-clamp-none transition-all duration-300">
                                 <p>{locale === 'en' ? product.descriptionEn : product.descriptionIt}</p>
                             </div>
 
-                            <div className="flex justify-between items-center mt-auto">
-                                <span className="text-gold font-semibold">
-                                    {product.price 
-                                        ? new Intl.NumberFormat(locale, {
-                                            style: 'currency',
-                                            currency: 'EUR',
-                                            maximumFractionDigits: 0
-                                        }).format(product.price)
-                                        : t('priceOnRequest')}
-                                </span>
-                                {soldDateFormatted && (
-                                    <span className="text-gold/40 text-sm">
-                                        {soldDateFormatted}
+                            {/* Price section with enhanced visibility */}
+                            <div className="mt-auto pt-4 border-t border-gold/10">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-2xl font-bold text-gold group-hover:text-white transition-colors duration-300">
+                                        {product.price 
+                                            ? new Intl.NumberFormat(locale, {
+                                                style: 'currency',
+                                                currency: 'EUR',
+                                                maximumFractionDigits: 0
+                                            }).format(product.price)
+                                            : t('priceOnRequest')}
                                     </span>
-                                )}
+                                    {soldDateFormatted && (
+                                        <span className="text-gold/40 text-sm">
+                                            {soldDateFormatted}
+                                        </span>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
