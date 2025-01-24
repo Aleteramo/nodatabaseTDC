@@ -9,7 +9,7 @@ export async function GET() {
         name: true,
         email: true,
         role: true,
-        cards: {
+        products: {
           select: {
             id: true,
             titleEn: true,
