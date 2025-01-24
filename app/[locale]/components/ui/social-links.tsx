@@ -34,12 +34,12 @@ const socialIcons = {
     className="w-8 h-8"
   >
     <defs>
-      <linearGradient id={`vintedGradient-${Math.random()}`} x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="vintedGradient"x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" stopColor="#6BC5A5"/>
         <stop offset="100%" stopColor="#4A90E2"/>
       </linearGradient>
     </defs>
-    <circle fill={`url(#vintedGradient-${Math.random()})`} cx="12" cy="12" r="12"/>
+    <circle fill="url(#vintedGradient)" cx="12" cy="12" r="12"/>
     <path 
       d="M7 6.5c0 0 2.5 7.5 5 11.5 2.5-4 5-11.5 5-11.5 0 0 0.5-1-0.5-1s-1.5 0.5-2 2c-0.5 1.5-2.5 7-2.5 7s-2-5.5-2.5-7c-0.5-1.5-1-2-2-2s-0.5 1-0.5 1z"
       fill="white"

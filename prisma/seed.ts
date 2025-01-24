@@ -1,42 +1,48 @@
-import { PrismaClient, CardStatus } from '@prisma/client';
+import { PrismaClient, Prisma, UserRole } from '@prisma/client';
 import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  // Clear existing data
-  await prisma.card.deleteMany({});
+  // Clean the database
+  await prisma.image.deleteMany({});
+  await prisma.product.deleteMany({});
   await prisma.user.deleteMany({});
 
-  // Create default password hash
+  // Create admin user with hashed password
   const passwordHash = await bcrypt.hash('admin123', 10);
-
-  // Create a default admin user
-  const defaultUser = await prisma.user.create({
+  const adminUser = await prisma.user.create({
     data: {
       email: 'admin@example.com',
-      name: 'Admin',
+      name: 'Admin User',
       passwordHash,
-      role: 'ADMIN'
+      role: UserRole.ADMIN
     }
   });
 
-  // Seed cards data
-  const cardsData = [
+  // Create some sample products
+  const products = [
     {
-      titleEn: 'Rolex Daytona',
-      titleIt: 'Rolex Daytona',
+      titleEn: 'Rolex Daytona Platinum',
+      titleIt: 'Rolex Daytona Platino',
       descriptionEn: 'Cosmograph in platinum with meteorite dial',
       descriptionIt: 'Cosmograph in platino con quadrante in meteorite',
       price: 75000,
-      status: CardStatus.AVAILABLE,
+      status: 'AVAILABLE',
       brand: 'Rolex',
       model: 'Daytona',
       year: 2021,
-      condition: 'Excellent',
-      mainImage: '/images/watches/daytona.jpg',
-      additionalImages: ['/images/watches/daytona-detail1.jpg', '/images/watches/daytona-detail2.jpg'],
-      ownerId: defaultUser.id
+      condition: 'New',
+      owner: {
+        connect: {
+          id: adminUser.id
+        }
+      },
+      images: {
+        create: {
+          url: '/images/rolex-daytona.jpg'
+        }
+      }
     },
     {
       titleEn: 'Patek Philippe Nautilus',
@@ -44,24 +50,31 @@ async function main() {
       descriptionEn: 'Stainless steel with blue dial',
       descriptionIt: 'Acciaio con quadrante blu',
       price: 120000,
-      status: CardStatus.SOLD,
+      status: 'AVAILABLE',
       brand: 'Patek Philippe',
       model: 'Nautilus',
       year: 2020,
-      condition: 'Like New',
-      mainImage: '/images/watches/nautilus.jpg',
-      additionalImages: ['/images/watches/nautilus-detail1.jpg', '/images/watches/nautilus-detail2.jpg'],
-      ownerId: defaultUser.id
+      condition: 'Excellent',
+      owner: {
+        connect: {
+          id: adminUser.id
+        }
+      },
+      images: {
+        create: {
+          url: '/images/patek-nautilus.jpg'
+        }
+      }
     }
   ];
 
-  for (const cardData of cardsData) {
-    await prisma.card.create({
-      data: cardData
+  for (const product of products) {
+    await prisma.product.create({
+      data: product
     });
   }
 
-  console.log('Database has been seeded! 🌱');
+  console.log('Seed data created successfully');
 }
 
 main()

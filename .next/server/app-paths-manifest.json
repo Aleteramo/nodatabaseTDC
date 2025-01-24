@@ -1,15 +1,9 @@
 {
-  "/_not-found": "app/_not-found.js",
+  "/not-found": "app/not-found.js",
   "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
-  "/page": "app/page.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/api/users/route": "app/api/users/route.js",
-  "/[locale]/catalogo/page": "app/[locale]/catalogo/page.js",
-  "/[locale]/contact/page": "app/[locale]/contact/page.js",
-  "/[locale]/contatti/page": "app/[locale]/contatti/page.js",
   "/[locale]/archive/page": "app/[locale]/archive/page.js",
   "/[locale]/login/page": "app/[locale]/login/page.js",
+  "/[locale]/admin/page": "app/[locale]/admin/page.js",
   "/[locale]/about/page": "app/[locale]/about/page.js",
-  "/[locale]/page": "app/[locale]/page.js",
-  "/[locale]/catalog/page": "app/[locale]/catalog/page.js"
+  "/[locale]/contact/page": "app/[locale]/contact/page.js"
 }

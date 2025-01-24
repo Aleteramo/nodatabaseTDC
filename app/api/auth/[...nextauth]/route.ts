@@ -2,8 +2,11 @@ import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcrypt';
+import { JWT } from "next-auth/jwt";
+import { Session } from "next-auth";
+import { AuthOptions } from 'next-auth';
 
-const handler = NextAuth({
+export const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -25,13 +28,13 @@ const handler = NextAuth({
         }
 
         const isPasswordCorrect = await bcrypt.compare(
-          credentials.password, 
+          credentials.password,
           user.passwordHash
         );
 
         if (isPasswordCorrect) {
-          return { 
-            id: user.id, 
+          return {
+            id: user.id,
             email: user.email,
             name: user.name || '',
             role: user.role
@@ -40,7 +43,7 @@ const handler = NextAuth({
 
         return null;
       }
-    })
+    }),
   ],
   callbacks: {
     async jwt({ token, user }) {
@@ -50,7 +53,9 @@ const handler = NextAuth({
       return token;
     },
     async session({ session, token }) {
-      session.user.role = token.role;
+      if (session?.user) {
+        session.user.role = token.role;
+      }
       return session;
     }
   },
@@ -58,8 +63,9 @@ const handler = NextAuth({
     signIn: '/login'
   },
   session: {
-    strategy: 'jwt'
+    strategy: "jwt" as const
   }
-});
+};
 
+const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };

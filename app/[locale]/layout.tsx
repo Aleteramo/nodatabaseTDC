@@ -1,6 +1,7 @@
 import { NextIntlClientProvider } from 'next-intl';
 import { ReactNode } from 'react';
 import { notFound } from 'next/navigation';
+import { unstable_setRequestLocale } from 'next-intl/server'; // Import unstable_setRequestLocale
 
 // Import messages statically with type assertion
 import enMessages from '@/messages/en.json';
@@ -30,16 +31,18 @@ export default function LocaleLayout({ children, params: { locale } }: Props) {
     notFound();
   }
 
+  unstable_setRequestLocale(locale); // <---- ADD THIS LINE HERE
+
   return (
     <html lang={locale}>
-      <body className="bg-black text-white">
-        <NextIntlClientProvider 
-          messages={messages[locale as Locale]} 
+      <body className="min-h-screen bg-black text-white">
+        <NextIntlClientProvider
+          messages={messages[locale as Locale]}
           locale={locale}
         >
           <NextAuthProvider>
             <Header />
-            <main>{children}</main>
+            <main className="pb-16 sm:pb-0">{children}</main>
             <Footer />
             <WhatsAppButton />
           </NextAuthProvider>

@@ -1,69 +1,77 @@
 import { getTranslations } from 'next-intl/server';
 import { unstable_setRequestLocale } from 'next-intl/server';
 import { ProductCard } from '../components/ui/product-card';
-import { getSoldProducts } from '@/app/utils/products';
+import { getSoldProducts, getAvailableProducts } from '@/app/utils/products';
 import { locales, type Locale } from '@/i18n';
 
 type Props = {
-  params: { locale: Locale }
+ params: { locale: Locale }
 };
 
-// Generate static params for all supported locales
 export function generateStaticParams() {
-  return locales.map((locale) => ({ locale }));
+ return locales.map((locale) => ({ locale }));
 }
 
-// Generate metadata for the page
 export async function generateMetadata({ params: { locale } }: Props) {
-  // Enable static rendering
-  unstable_setRequestLocale(locale);
-  
-  const t = await getTranslations({ locale, namespace: 'SoldPieces' });
-  return {
-    title: t('meta.title'),
-    description: t('meta.description')
-  };
+ unstable_setRequestLocale(locale);
+ const t = await getTranslations({ locale, namespace: 'Archive' });
+ return {
+   title: t('meta.title'),
+   description: t('meta.description')
+ };
 }
 
 export default async function ArchivePage({ params: { locale } }: Props) {
-  // Enable static rendering
-  unstable_setRequestLocale(locale);
-  
-  const t = await getTranslations('SoldPieces');
+ unstable_setRequestLocale(locale);
+ const t = await getTranslations('Archive');
 
-  const pieces = await getSoldProducts();
+ const soldPieces = await getSoldProducts();
+ const availablePieces = await getAvailableProducts();
+ const allPieces = [...availablePieces, ...soldPieces];
 
-  return (
-    <div className="min-h-screen bg-black">
-      {/* Hero Section */}
-      <section className="relative h-[40vh] overflow-hidden bg-gradient-to-b from-black/95 to-black/90">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-gold/10 via-black/90 to-black" />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-5xl md:text-6xl font-bold text-gold mb-4">
-              {t('title')}
-            </h1>
-            <p className="text-gold/80 text-xl max-w-2xl mx-auto px-4">
-              {t('description')}
-            </p>
-          </div>
-        </div>
-      </section>
+ console.log('DEBUG - Query results:', { 
+  soldPieces, 
+  availablePieces,
+  allPieces,
+  soldCount: soldPieces.length,
+  availableCount: availablePieces.length
+});
 
-      {/* Archive Grid */}
-      <div className="container mx-auto px-4 py-12">
-        {pieces.length === 0 ? (
-          <div className="flex items-center justify-center">
-            <p className="text-gold/80 text-2xl">{t('noItemsFound')}</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {pieces.map((piece) => (
-              <ProductCard key={piece.id} product={piece} locale={locale} />
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
+console.log({
+  soldPieces,
+  availablePieces,
+  allPieces,
+  soldCount: soldPieces.length,
+  availableCount: availablePieces.length
+});
+ return (
+   <div className="min-h-screen bg-black">
+     <section className="relative h-[40vh] overflow-hidden bg-gradient-to-b from-black/95 to-black/90">
+       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-gold/10 via-black/90 to-black" />
+       <div className="absolute inset-0 flex items-center justify-center">
+         <div className="text-center">
+           <h1 className="text-5xl md:text-6xl font-bold text-gold mb-4">
+             {t('title')}
+           </h1>
+           <p className="text-gold/80 text-xl max-w-2xl mx-auto px-4">
+             {t('description')}
+           </p>
+         </div>
+       </div>
+     </section>
+
+     <div className="container mx-auto px-4 py-12">
+       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+         {allPieces.map((piece) => (
+           <ProductCard 
+             key={piece.id} 
+             product={piece} 
+             locale={locale}
+             isAdmin={false}
+           />
+         ))}
+       </div>
+     </div>
+   </div>
+ );
 }

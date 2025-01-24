@@ -8,7 +8,32 @@
     "about": "About",
     "contact": "Contact"
   },
+
+  "Admin": {
+    "cards": {
+      "title": "Product Management",
+      "management": "Cards Management",
+      "addNew": "Add New Card",
+      "priceOnRequest": "Price on request",
+      "edit": "Edit",
+      "delete": "Delete",
+      "noCards": "No cards yet",
+      "addYourFirst": "Add your first card",
+      "status": {
+        "available": "Available",
+        "reserved": "Reserved",
+        "sold": "Sold"
+      }
+    }
+  },
+  
   "Products": {
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "saving": "Saving",
+    "noImage": "No Image",
     "sold": "Sold",
     "available": "Available",
     "watches": {
@@ -46,7 +71,7 @@
     "services": "Services",
     "privacy": "Privacy",
     "followUs": "Follow Us",
-    "copyright": " 2023 The Duke's Chrono. All rights reserved."
+    "copyright": " 2025 The Duke's Chrono. All rights reserved."
   },
   "Collection": {
     "title": "Available Watches",
@@ -59,8 +84,7 @@
     },
     "title": "Hall of Fame",
     "description": "Each timepiece in this archive represents the pinnacle of vintage watchmaking and our dedication to preserving these timeless treasures.",
-    "soldOn": "Entered history on",
-    "noItemsFound": "Our archive is growing"
+    "soldOn": "Entered history on"
   },
   "About": {
     "meta": {
@@ -152,5 +176,13 @@
     "title": "Page Not Found",
     "description": "The page you are looking for does not exist.",
     "backHome": "Back to Home"
+  },
+  "Archive": {
+    "meta": {
+      "title": "Archive - The Duke's Chrono",
+      "description": "Browse our collection of prestigious vintage watches"
+    },
+    "title": "Our Collection",
+    "description": "Discover our curated selection of prestigious vintage timepieces"
   }
 }

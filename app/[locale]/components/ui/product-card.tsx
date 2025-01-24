@@ -1,180 +1,379 @@
 'use client';
 
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { cn } from "@/lib/utils";
-import { useRef, useState, useEffect } from "react";
-import { Product } from '@/app/utils/products';
+import { Product } from '@prisma/client';
 import { useTranslations } from 'next-intl';
+import { useSession } from 'next-auth/react';
 
 interface ProductCardProps {
- product: Product;
- locale: string;
+    product: Product & {
+        images: {
+            id: string;
+            url: string;
+            alt?: string | null;
+            isMain: boolean;
+        }[];
+    };
+    locale: string;
+    isAdmin?: boolean;
+    onProductUpdate?: (updatedProduct: Product) => void;
+    onProductDelete?: (productId: string) => void;
 }
 
-export function ProductCard({ product, locale }: ProductCardProps) {
- const t = useTranslations('Products');
- const [soldDateFormatted, setSoldDateFormatted] = useState<string | null>(null);
- const isPointerInside = useRef(false);
- const refElement = useRef<HTMLDivElement>(null);
- const state = useRef({
-   glare: { x: 50, y: 50 },
-   background: { x: 50, y: 50 },
-   rotate: { x: 0, y: 0 },
- });
+export function ProductCard({ product, locale, isAdmin = false, onProductUpdate, onProductDelete }: ProductCardProps) {
+    const router = useRouter();
+    const t = useTranslations('Products');
+    const { data: session } = useSession(); // Ottieni la sessione utente
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedProduct, setEditedProduct] = useState<Product & { images: { id: string; url: string; alt?: string | null; isMain: boolean; }[] }>(product);
+    const [isSaving, setIsSaving] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [soldDateFormatted, setSoldDateFormatted] = useState<string | null>(null);
+    const [newImageFile, setNewImageFile] = useState<File | null>(null); // Stato per il nuovo file immagine
+    const imageInputRef = useRef<HTMLInputElement>(null); // Ref per l'input file immagine
+    const refElement = useRef<HTMLDivElement>(null);
 
- useEffect(() => {
-   if (product.soldDate) {
-     const date = new Date(product.soldDate);
-     const formatted = new Intl.DateTimeFormat(locale, {
-       year: 'numeric',
-       month: 'long',
-       day: 'numeric',
-     }).format(date);
-     setSoldDateFormatted(formatted);
-   }
- }, [product.soldDate, locale]);
+    useEffect(() => {
+        setEditedProduct(product);
+        setErrorMessage(null);
+        setNewImageFile(null); // Resetta il file immagine quando il prodotto cambia
+        if (imageInputRef.current) {
+            imageInputRef.current.value = ''; // Resetta il valore dell'input file
+        }
+    }, [product]);
 
- const containerStyle = {
-   "--m-x": "50%",
-   "--m-y": "50%",
-   "--r-x": "0deg",
-   "--r-y": "0deg",
-   "--bg-x": "50%",
-   "--bg-y": "50%",
-   "--duration": "300ms",
-   "--foil-size": "100%",
-   "--opacity": "0",
-   "--radius": "48px",
-   "--easing": "ease",
-   "--transition": "var(--duration) var(--easing)",
- } as any;
+    useEffect(() => {
+        if (product.status === 'SOLD') {
+            const date = new Date(product.updatedAt!);
+            const formatted = new Intl.DateTimeFormat(locale, {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+            }).format(date);
+            setSoldDateFormatted(formatted);
+        } else {
+            setSoldDateFormatted(null);
+        }
+    }, [product.status, product.updatedAt, locale]);
 
- const backgroundStyle = {
-   "--step": "5%",
-   "--foil-svg": `url("data:image/svg+xml,%3Csvg width='26' height='26' viewBox='0 0 26 26' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2.99994 3.419C2.99994 3.419 21.6142 7.43646 22.7921 12.153C23.97 16.8695 3.41838 23.0306 3.41838 23.0306' stroke='white' stroke-width='5' stroke-miterlimit='3.86874' stroke-linecap='round' style='mix-blend-mode:darken'/%3E%3C/svg%3E")`,
-   "--pattern": "var(--foil-svg) center/100% no-repeat",
-   "--rainbow":
-     "repeating-linear-gradient( 0deg,rgb(255,119,115) calc(var(--step) * 1),rgba(255,237,95,1) calc(var(--step) * 2),rgba(168,255,95,1) calc(var(--step) * 3),rgba(131,255,247,1) calc(var(--step) * 4),rgba(120,148,255,1) calc(var(--step) * 5),rgb(216,117,255) calc(var(--step) * 6),rgb(255,119,115) calc(var(--step) * 7) ) 0% var(--bg-y)/200% 700% no-repeat",
-   "--diagonal":
-     "repeating-linear-gradient( 128deg,#0e152e 0%,hsl(180,10%,60%) 3.8%,hsl(180,10%,60%) 4.5%,hsl(180,10%,60%) 5.2%,#0e152e 10%,#0e152e 12% ) var(--bg-x) var(--bg-y)/300% no-repeat",
-   "--shade":
-     "radial-gradient( farthest-corner circle at var(--m-x) var(--m-y),rgba(255,255,255,0.1) 12%,rgba(255,255,255,0.15) 20%,rgba(255,255,255,0.25) 120% ) var(--bg-x) var(--bg-y)/300% no-repeat",
-   backgroundBlendMode: "hue, hue, hue, overlay",
- };
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setEditedProduct(prev => ({ ...prev, [name]: value }));
+    };
 
- const updateStyles = () => {
-   if (refElement.current) {
-     const { background, rotate, glare } = state.current;
-     refElement.current?.style.setProperty("--m-x", `${glare.x}%`);
-     refElement.current?.style.setProperty("--m-y", `${glare.y}%`);
-     refElement.current?.style.setProperty("--r-x", `${rotate.x}deg`);
-     refElement.current?.style.setProperty("--r-y", `${rotate.y}deg`);
-     refElement.current?.style.setProperty("--bg-x", `${background.x}%`);
-     refElement.current?.style.setProperty("--bg-y", `${background.y}%`);
-   }
- };
+    const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        const parsedPrice = parseFloat(value);
+        setEditedProduct(prev => ({ ...prev, [name]: isNaN(parsedPrice) ? undefined : parsedPrice }));
+    };
 
- return (
-   <div
-     style={containerStyle}
-     ref={refElement}
-     className="relative isolate [contain:layout_style] [perspective:600px] transition-transform duration-[var(--duration)] ease-[var(--easing)] delay-[var(--delay)] will-change-transform w-full"
-     onPointerMove={(event) => {
-       const rotateFactor = 0.4;
-       const rect = event.currentTarget.getBoundingClientRect();
-       const position = {
-         x: event.clientX - rect.left,
-         y: event.clientY - rect.top,
-       };
-       const percentage = {
-         x: (100 / rect.width) * position.x,
-         y: (100 / rect.height) * position.y,
-       };
-       const delta = {
-         x: percentage.x - 50,
-         y: percentage.y - 50,
-       };
+    const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setEditedProduct(prev => ({
+            ...prev,
+            status: value as any
+        }));
+    };
 
-       const { background, rotate, glare } = state.current;
-       background.x = 50 + percentage.x / 4 - 12.5;
-       background.y = 50 + percentage.y / 3 - 16.67;
-       rotate.x = -(delta.x / 3.5);
-       rotate.y = delta.y / 2;
-       rotate.x *= rotateFactor;
-       rotate.y *= rotateFactor;
-       glare.x = percentage.x;
-       glare.y = percentage.y;
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            setNewImageFile(file);
+            
+            // Create a preview URL for immediate display
+            const previewUrl = URL.createObjectURL(file);
+            setEditedProduct(prev => ({
+                ...prev,
+                images: [...prev.images, { id: 'preview', url: previewUrl, alt: '', isMain: true }]
+            }));
+        }
+    };
 
-       updateStyles();
-     }}
-     onPointerLeave={() => {
-       if (refElement.current) {
-         refElement.current.style.removeProperty("--duration");
-         refElement.current?.style.setProperty("--r-x", `0deg`);
-         refElement.current?.style.setProperty("--r-y", `0deg`);
-       }
-     }}
-   >
-     <div className="h-full grid will-change-transform origin-center transition-transform duration-[var(--duration)] ease-[var(--easing)] delay-[var(--delay)] [transform:rotateY(var(--r-x))_rotateX(var(--r-y))] rounded-lg overflow-hidden border border-slate-800 hover:[--opacity:0.6] hover:[--duration:200ms] hover:[--easing:linear] hover:filter-none">
-       <div className="w-full h-full grid [grid-area:1/1] mix-blend-soft-light [clip-path:inset(0_0_0_0_round_12px)]">
-         <div className="bg-white/5 backdrop-blur-sm">
-           <div className="relative w-full h-64 bg-gray-800">
-             {product.image ? (
-               <Image 
-                 src={product.image} 
-                 alt={t(`watches.${product.translationKey || '1'}.name`)} 
-                 fill 
-                 className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300" 
-               />
-             ) : (
-               <div className="w-full h-full flex items-center justify-center text-gold/50">
-                 {t('noImage')}
-               </div>
-             )}
-           </div>
+    // Cleanup preview URL when component unmounts or when editing is cancelled
+    useEffect(() => {
+        return () => {
+            if (editedProduct.images.find(img => img.id === 'preview')) {
+                URL.revokeObjectURL(editedProduct.images.find(img => img.id === 'preview')!.url);
+            }
+        };
+    }, [editedProduct.images]);
 
-           <div className="p-6">
-             <div className="flex justify-between items-start mb-2">
-               <h2 className="text-2xl font-semibold text-gold truncate">
-                 {t(`watches.${product.translationKey || '1'}.name`)}
-               </h2>
-               <span className="text-gold/80">
-                 {product.status === 'sold' ? t('sold') : t('available')}
-               </span>
-             </div>
+    const handleCancel = () => {
+        setIsEditing(false);
+        setErrorMessage(null);
+        // Revert to original product data
+        setEditedProduct(product);
+        setNewImageFile(null);
+        if (imageInputRef.current) {
+            imageInputRef.current.value = '';
+        }
+        // Cleanup any preview URL
+        if (editedProduct.images.find(img => img.id === 'preview')) {
+            URL.revokeObjectURL(editedProduct.images.find(img => img.id === 'preview')!.url);
+        }
+    };
 
-             <div className="text-gold/60 text-sm mb-3 space-y-1">
-               <p>{t(`watches.${product.translationKey || '1'}.description`)}</p>
-             </div>
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSaving(true);
+        setErrorMessage(null);
+        try {
+            const formData = new FormData();
+            
+            // Add text fields
+            formData.append('titleEn', editedProduct.titleEn || '');
+            formData.append('titleIt', editedProduct.titleIt || '');
+            formData.append('descriptionEn', editedProduct.descriptionEn || '');
+            formData.append('descriptionIt', editedProduct.descriptionIt || '');
+            formData.append('price', editedProduct.price?.toString() || '');
+            formData.append('status', editedProduct.status || 'AVAILABLE');
+            
+            // Add image if selected
+            if (newImageFile) {
+                formData.append('image', newImageFile);
+            }
 
-             <p className="text-gold/60 mb-4 line-clamp-2">
-               {t(`watches.${product.translationKey || '1'}.description`)}
-             </p>
+            const response = await fetch(`/api/admin/products/${editedProduct.id}`, {
+                method: 'PUT',
+                body: formData,
+            });
 
-             <div className="flex justify-between items-center">
-               <span className={cn(
-                 "inline-block px-3 py-1 rounded-full text-sm",
-                 product.status === 'sold' 
-                   ? "bg-red-500/20 text-red-300" 
-                   : "bg-green-500/20 text-green-300"
-               )}>
-                 {t(`watches.${product.translationKey || '1'}.price`)}
-               </span>
-               {soldDateFormatted && (
-                 <span className="text-gold/40 text-sm">
-                   {soldDateFormatted}
-                 </span>
-               )}
-             </div>
-           </div>
-         </div>
-       </div>
-       <div className="w-full h-full grid [grid-area:1/1] mix-blend-soft-light [clip-path:inset(0_0_1px_0_round_12px)] opacity-[var(--opacity)] transition-opacity transition-background duration-[var(--duration)] ease-[var(--easing)] delay-[var(--delay)] will-change-background [background:radial-gradient(farthest-corner_circle_at_var(--m-x)_var(--m-y),_rgba(255,255,255,0.8)_10%,_rgba(255,255,255,0.65)_20%,_rgba(255,255,255,0)_90%)]" />
-       <div
-         className="w-full h-full grid [grid-area:1/1] mix-blend-color-dodge opacity-[var(--opacity)] will-change-background transition-opacity [clip-path:inset(0_0_1px_0_round_12px)] [background-blend-mode:hue_hue_hue_overlay] [background:var(--pattern),_var(--rainbow),_var(--diagonal),_var(--shade)] relative after:content-[''] after:grid-area-[inherit] after:bg-repeat-[inherit] after:bg-attachment-[inherit] after:bg-origin-[inherit] after:bg-clip-[inherit] after:bg-[inherit] after:mix-blend-exclusion after:[background-size:var(--foil-size),_200%_400%,_800%,_200%] after:[background-position:center,_0%_var(--bg-y),_calc(var(--bg-x)*_-1)_calc(var(--bg-y)*_-1),_var(--bg-x)_var(--bg-y)] after:[background-blend-mode:soft-light,_hue,_hard-light]"
-         style={{ ...backgroundStyle }}
-       />
-     </div>
-   </div>
- );
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData?.message || `Failed to update product: ${response.status}`);
+            }
+
+            const updatedProductFromServer = await response.json();
+            onProductUpdate?.(updatedProductFromServer);
+            setEditedProduct(updatedProductFromServer);
+            setIsEditing(false);
+            setNewImageFile(null);
+            if (imageInputRef.current) {
+                imageInputRef.current.value = '';
+            }
+        } catch (error: any) {
+            console.error("Error updating product:", error);
+            setErrorMessage(error.message);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleDelete = async () => {
+        setIsSaving(true); // Riusa isSaving state per l'operazione di cancellazione
+        setErrorMessage(null);
+        try {
+            const response = await fetch(`/api/admin/products/${product.id}`, { // Usa product.id per la cancellazione
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData?.message || `Failed to delete product: ${response.status}`);
+            }
+
+            onProductDelete?.(product.id); // Chiama la callback onProductDelete passando l'ID del prodotto cancellato
+            setIsEditing(false);
+
+
+        } catch (error: any) {
+            console.error("Error deleting product:", error);
+            setErrorMessage(error.message);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const mainImage = editedProduct.images.find(img => img.isMain) || editedProduct.images[0];
+    const imageUrl = mainImage?.url || '/placeholder.jpg';
+    const imageAlt = mainImage?.alt || locale === 'en' ? editedProduct.titleEn : editedProduct.titleIt;
+
+    return (
+        <div
+            ref={refElement}
+            className="bg-black border border-gold/30 rounded-lg overflow-hidden hover:border-gold/60 transition-all duration-300"
+        >
+            {isEditing ? (
+                <div className="p-6 flex-1 flex flex-col">
+                    {errorMessage && <div className="text-red-500">{errorMessage}</div>}
+                    <div className="relative w-full h-64 bg-gray-800">
+                        <Image
+                            src={imageUrl}
+                            alt={imageAlt}
+                            fill
+                            className="w-full h-full object-contain"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        />
+                    </div>
+
+                    <div className="flex flex-col">
+                        <label htmlFor={`titleEn-${product.id}`} className="block text-sm font-medium text-gold">English Title</label>
+                        <input
+                            type="text"
+                            id={`titleEn-${product.id}`}
+                            name="titleEn"
+                            value={editedProduct.titleEn}
+                            onChange={handleInputChange}
+                            className="mt-1 p-2 w-full bg-black border border-gold/50 rounded-md text-gold focus:border-gold focus:ring-1 focus:ring-gold focus:ring-opacity-50"
+                        />
+                        
+                        <label htmlFor={`titleIt-${product.id}`} className="block text-sm font-medium text-gold mt-4">Italian Title</label>
+                        <input
+                            type="text"
+                            id={`titleIt-${product.id}`}
+                            name="titleIt"
+                            value={editedProduct.titleIt}
+                            onChange={handleInputChange}
+                            className="mt-1 p-2 w-full bg-black border border-gold/50 rounded-md text-gold focus:border-gold focus:ring-1 focus:ring-gold focus:ring-opacity-50"
+                        />
+                    </div>
+
+                    <div className="flex flex-col">
+                        <label htmlFor={`price-${product.id}`} className="block text-sm font-medium text-gold">Price</label>
+                        <input
+                            type="number"
+                            id={`price-${product.id}`}
+                            name="price"
+                            value={editedProduct.price !== undefined ? editedProduct.price.toString() : ''}
+                            onChange={handlePriceChange}
+                            className="mt-1 p-2 block w-full rounded-md border-gold/50 shadow-sm focus:border-gold focus:ring-gold bg-black text-gold sm:text-sm"
+                        />
+                    </div>
+
+                    <div className="flex flex-col">
+                        <label htmlFor={`status-${product.id}`} className="block text-sm font-medium text-gold">Status</label>
+                        <select
+                            id={`status-${product.id}`}
+                            name="status"
+                            value={editedProduct.status || 'AVAILABLE'}
+                            onChange={handleStatusChange}
+                            className="mt-1 p-2 block w-full rounded-md border-gold/50 shadow-sm focus:border-gold focus:ring-gold bg-black text-gold sm:text-sm"
+                        >
+                            <option value="AVAILABLE">{t('available')}</option>
+                            <option value="SOLD">{t('sold')}</option>
+                        </select>
+                    </div>
+                    {/* Input per l'immagine */}
+                    <div className="flex flex-col mt-2">
+                        <label htmlFor={`image-${product.id}`} className="block text-sm font-medium text-gold">Image</label>
+                        <input
+                            ref={imageInputRef}
+                            type="file"
+                            id={`image-${product.id}`}
+                            name="image"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            className="mt-1 p-2 block w-full rounded-md border-gold/50 shadow-sm focus:border-gold focus:ring-gold bg-black text-gold sm:text-sm"
+                        />
+                    </div>
+
+                    <div className="flex justify-end gap-2 mt-4">
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleSubmit(e);
+                            }}
+                            disabled={isSaving}
+                            className={cn(
+                                "px-4 py-2 rounded-md bg-gold text-black font-semibold hover:bg-gold/80 focus:outline-none focus:ring-2 focus:ring-gold focus:ring-opacity-50",
+                                isSaving && "opacity-50 cursor-not-allowed"
+                            )}
+                        >
+                            {isSaving ? t('saving') + "..." : t('save')}
+                        </button>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleCancel();
+                            }}
+                            disabled={isSaving}
+                            className="px-4 py-2 rounded-md text-gold border border-gold font-semibold hover:bg-gold/10 focus:outline-none focus:ring-2 focus:ring-gold focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {t('cancel')}
+                        </button>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete();
+                            }}
+                            disabled={isSaving}
+                            className="px-4 py-2 rounded-md text-red-500 border border-red-500 font-semibold hover:bg-red-500/10 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {t('delete')}
+                        </button>
+                    </div>
+                </div>
+            ) : (
+                <div className="flex flex-col h-full">
+                    <div className="relative w-full h-64 bg-gray-800">
+                        <Image
+                            src={imageUrl}
+                            alt={imageAlt}
+                            priority
+                            width={500}
+                            height={300}
+                            style={{ objectFit: 'contain' }}
+                            className="w-full h-full hover:scale-105 transition-transform duration-300"
+                        />
+                    </div>
+
+                    <div className="p-6 flex-1 flex flex-col">
+                        <h2 className="text-xl font-bold text-gold mb-2">
+                            {locale === 'en' ? product.titleEn : product.titleIt}
+                        </h2>
+                        
+                        <div className="flex justify-between items-start mb-2">
+                            <span className={cn(
+                                "inline-block px-3 py-1 rounded-full text-sm",
+                                product.status === 'SOLD'
+                                    ? "bg-red-500/20 text-red-300"
+                                    : "bg-green-500/20 text-green-300"
+                            )}>
+                                {product.status === 'SOLD' ? t('sold') : t('available')}
+                            </span>
+                        </div>
+
+                        <div className="text-gold/60 text-sm mb-3">
+                            <p>{locale === 'en' ? product.descriptionEn : product.descriptionIt}</p>
+                        </div>
+
+                        <div className="flex justify-between items-center mt-auto">
+                            <span className="text-gold font-semibold">
+                                {product.price 
+                                    ? new Intl.NumberFormat(locale, {
+                                        style: 'currency',
+                                        currency: 'EUR',
+                                        maximumFractionDigits: 0
+                                    }).format(product.price)
+                                    : t('priceOnRequest')}
+                            </span>
+                            {soldDateFormatted && (
+                                <span className="text-gold/40 text-sm">
+                                    {soldDateFormatted}
+                                </span>
+                            )}
+                        </div>
+                        
+                        {isAdmin && (
+                            <div className="flex justify-end mt-4">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setIsEditing(true);
+                                    }}
+                                    className="px-4 py-2 rounded-md text-gold border border-gold font-semibold hover:bg-gold/10 focus:outline-none focus:ring-2 focus:ring-gold focus:ring-opacity-50"
+                                >
+                                    {t('edit')}
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
 }

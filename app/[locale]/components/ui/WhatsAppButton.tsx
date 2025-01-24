@@ -11,7 +11,7 @@ export default function WhatsAppButton() {
   const whatsappLink = `https://wa.me/${phoneNumberClean}`;
 
   return (
-    <div className="fixed bottom-6 right-6 z-[9999] isolation">
+    <div className="fixed bottom-6 right-6 z-[9999] pointer-events-none">
       <div className="relative group">
         {/* Effetto pulsazione */}
         <motion.div
@@ -39,10 +39,10 @@ export default function WhatsAppButton() {
             flex items-center justify-center
             group w-14 h-14
             hover:shadow-[#25D366]/20 hover:shadow-xl
-          "
+            pointer-events-auto"
           initial={{ scale: 0, opacity: 0 }}
-          animate={{ 
-            scale: 1, 
+          animate={{
+            scale: 1,
             opacity: 1,
             transition: {
               type: "spring",
@@ -74,7 +74,7 @@ export default function WhatsAppButton() {
               px-4 py-2 rounded-xl
               text-sm font-medium
               shadow-lg shadow-black/5
-              opacity-0 group-hover:opacity-100
+              opacity-100 sm:opacity-0 group-hover:opacity-100
               transition-all duration-300
               whitespace-nowrap
               border border-[#25D366]/10

@@ -1,92 +1,74 @@
 import prisma from '@/lib/prisma';
+import { Product as PrismaProduct, Image as PrismaImage, Prisma } from '@prisma/client';
 
-// Define the Card type based on your Prisma schema
-type CardStatus = 'AVAILABLE' | 'SOLD' | 'RESERVED';
+interface Image extends PrismaImage {}
 
-interface Card {
-  id: string;
+export interface Product extends PrismaProduct {}
+
+export type ProductCreateInput = {
   titleEn: string;
   titleIt: string;
-  mainImage: string | null;
-  additionalImages: string[];
-  descriptionEn: string | null;
-  descriptionIt: string | null;
-  price: number | null;
-  status: CardStatus;
-  updatedAt: Date;
-  brand: string | null;
-  model: string | null;
-  year: number | null;
-  condition: string | null;
-  createdAt: Date;
-}
-
-export interface Product {
-  id: string;
-  translationKey: string;
-  image: string;
-  status?: 'available' | 'sold';
-  soldDate?: string;
-}
-
-export const formatDate = (dateString?: string | Date): string | undefined => {
-  if (!dateString) return undefined;
-
-  try {
-    const date = dateString instanceof Date ? dateString : new Date(dateString);
-    return date.toLocaleDateString('it-IT', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-    });
-  } catch (error) {
-    console.error('Date formatting error:', error);
-    return undefined;
-  }
+  descriptionEn: string;
+  descriptionIt: string;
+  price: number;
+  status?: string;
+  brand?: string;
+  model?: string;
+  year?: number;
+  condition?: string;
+  ownerId: string;
+  images?: {
+    create: {
+      url: string;
+      alt?: string;
+      isMain?: boolean;
+    }[];
+  };
 };
 
-export const products: Product[] = [
-  {
-    id: '1',
-    translationKey: '1', // corresponds to Products.watches.1
-    image: '/images/watches/eduorologi1.svg',
-    status: 'available'
-  },
-  {
-    id: '2',
-    translationKey: '2', // corresponds to Products.watches.2
-    image: '/images/watches/eduorologi1.svg',
-    status: 'available'
-  },
-  {
-    id: '3',
-    translationKey: '3', // corresponds to Products.watches.3
-    image: '/images/watches/eduorologi1.svg',
-    status: 'available'
-  }
-];
-
-export const soldProducts: Product[] = [
-  {
-    id: '4',
-    translationKey: '4', // corresponds to Products.watches.4
-    image: '/images/watches/eduorologi1.svg',
-    status: 'sold',
-    soldDate: '2023-12-15'
-  },
-  {
-    id: '5',
-    translationKey: '5', // corresponds to Products.watches.5
-    image: '/images/watches/eduorologi1.svg',
-    status: 'sold',
-    soldDate: '2023-11-30'
-  }
-];
-
-export function getAvailableProducts(): Product[] {
-  return products;
+export function formatDate(dateString?: string | Date): string | undefined {
+  if (!dateString) return undefined;
+  
+  const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
 }
 
-export function getSoldProducts(): Product[] {
-  return soldProducts;
+export async function getAvailableProducts(): Promise<Product[]> {
+  try {
+    console.log('Fetching available products...');
+    const availableProducts = await prisma.product.findMany({
+      where: { status: 'AVAILABLE' },
+      include: { 
+        images: true
+      },
+    });
+    console.log('Raw available products:', availableProducts);
+
+    return availableProducts;
+  } catch (error) {
+    console.error("Error:", error);
+    return [];
+  }
+}
+
+export async function getSoldProducts(): Promise<Product[]> {
+  try {
+    console.log('Fetching sold products...');
+    const soldProducts = await prisma.product.findMany({
+      where: { status: 'SOLD' },
+      include: { 
+        images: true
+      },
+    });
+    console.log('Raw sold products:', soldProducts);
+
+    return soldProducts;
+  } catch (error) {
+    console.error("Error:", error);
+    return [];
+  }
 }

@@ -3,7 +3,19 @@ const createNextIntlPlugin = require('next-intl/plugin');
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Removed experimental.serverActions as it's now default
+  images: {
+    domains: ['localhost'],
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '3000',
+        pathname: '/images/**',
+      },
+    ],
+    unoptimized: true
+  },
 };
 
-module.exports = createNextIntlPlugin('./i18n.ts')(nextConfig);
+const withNextIntl = createNextIntlPlugin('./i18n.ts');
+module.exports = withNextIntl(nextConfig);
