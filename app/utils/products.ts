@@ -3,7 +3,9 @@ import { Product as PrismaProduct, Image as PrismaImage, Prisma } from '@prisma/
 
 interface Image extends PrismaImage {}
 
-export interface Product extends PrismaProduct {}
+export interface Product extends PrismaProduct {
+  images: Image[];
+}
 
 export type ProductCreateInput = {
   titleEn: string;
