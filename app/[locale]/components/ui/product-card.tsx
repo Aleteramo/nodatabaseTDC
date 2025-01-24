@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Product, ProductWithImages, ProductWithTempImages, TempImage } from '@/app/utils/products';
 import { useTranslations } from 'next-intl';
 import { useSession } from 'next-auth/react';
+import { GlareCard } from './glare-card';
 
 interface ProductCardProps {
     product: ProductWithImages;
@@ -31,6 +32,7 @@ export function ProductCard({ product, locale, isAdmin = false, onProductUpdate,
     const [newImageFile, setNewImageFile] = useState<File | null>(null);
     const imageInputRef = useRef<HTMLInputElement>(null);
     const refElement = useRef<HTMLDivElement>(null);
+    const [rotation, setRotation] = useState({ x: 0, y: 0 });
 
     useEffect(() => {
         setEditedProduct({
@@ -57,6 +59,40 @@ export function ProductCard({ product, locale, isAdmin = false, onProductUpdate,
             setSoldDateFormatted(null);
         }
     }, [product.status, product.updatedAt, locale]);
+
+    useEffect(() => {
+        if (!isAdmin && refElement.current) {
+            const handleMouseMove = (e: MouseEvent) => {
+                const card = refElement.current;
+                if (!card) return;
+
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+
+                const rotateX = (y - centerY) / 20;
+                const rotateY = -(x - centerX) / 20;
+
+                setRotation({ x: rotateX, y: rotateY });
+            };
+
+            const handleMouseLeave = () => {
+                setRotation({ x: 0, y: 0 });
+            };
+
+            const element = refElement.current;
+            element.addEventListener('mousemove', handleMouseMove);
+            element.addEventListener('mouseleave', handleMouseLeave);
+
+            return () => {
+                element.removeEventListener('mousemove', handleMouseMove);
+                element.removeEventListener('mouseleave', handleMouseLeave);
+            };
+        }
+    }, [isAdmin]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -214,12 +250,9 @@ export function ProductCard({ product, locale, isAdmin = false, onProductUpdate,
     const imageAlt = mainImage?.alt || (locale === 'en' ? editedProduct.titleEn : editedProduct.titleIt) || '';
 
     return (
-        <div
-            ref={refElement}
-            className="bg-black border border-gold/30 rounded-lg overflow-hidden hover:border-gold/60 transition-all duration-300"
-        >
+        <div className="relative">
             {isEditing ? (
-                <div className="p-6 flex-1 flex flex-col">
+                <div className="p-6 flex-1 flex flex-col bg-black border border-gold/30 rounded-lg">
                     {errorMessage && <div className="text-red-500">{errorMessage}</div>}
                     <div className="relative w-full h-64 bg-gray-800">
                         <Image
@@ -329,71 +362,73 @@ export function ProductCard({ product, locale, isAdmin = false, onProductUpdate,
                     </div>
                 </div>
             ) : (
-                <div className="flex flex-col h-full">
-                    <div className="relative w-full h-64 bg-gray-800">
-                        <Image
-                            src={imageUrl}
-                            alt={imageAlt}
-                            priority
-                            width={500}
-                            height={300}
-                            style={{ objectFit: 'contain' }}
-                            className="w-full h-full hover:scale-105 transition-transform duration-300"
-                        />
-                    </div>
-
-                    <div className="p-6 flex-1 flex flex-col">
-                        <h2 className="text-xl font-bold text-gold mb-2">
-                            {locale === 'en' ? product.titleEn : product.titleIt}
-                        </h2>
-                        
-                        <div className="flex justify-between items-start mb-2">
-                            <span className={cn(
-                                "inline-block px-3 py-1 rounded-full text-sm",
-                                product.status === 'SOLD'
-                                    ? "bg-red-500/20 text-red-300"
-                                    : "bg-green-500/20 text-green-300"
-                            )}>
-                                {product.status === 'SOLD' ? t('sold') : t('available')}
-                            </span>
+                <GlareCard className="bg-black">
+                    <div className="flex flex-col h-full">
+                        <div className="relative w-full h-64 bg-gray-800 overflow-hidden">
+                            <Image
+                                src={imageUrl}
+                                alt={imageAlt}
+                                priority
+                                width={500}
+                                height={300}
+                                style={{ objectFit: 'contain' }}
+                                className="w-full h-full transition-transform duration-300"
+                            />
                         </div>
 
-                        <div className="text-gold/60 text-sm mb-3">
-                            <p>{locale === 'en' ? product.descriptionEn : product.descriptionIt}</p>
-                        </div>
-
-                        <div className="flex justify-between items-center mt-auto">
-                            <span className="text-gold font-semibold">
-                                {product.price 
-                                    ? new Intl.NumberFormat(locale, {
-                                        style: 'currency',
-                                        currency: 'EUR',
-                                        maximumFractionDigits: 0
-                                    }).format(product.price)
-                                    : t('priceOnRequest')}
-                            </span>
-                            {soldDateFormatted && (
-                                <span className="text-gold/40 text-sm">
-                                    {soldDateFormatted}
+                        <div className="p-6 flex-1 flex flex-col">
+                            <h2 className="text-xl font-bold text-gold mb-2">
+                                {locale === 'en' ? product.titleEn : product.titleIt}
+                            </h2>
+                            
+                            <div className="flex justify-between items-start mb-2">
+                                <span className={cn(
+                                    "inline-block px-3 py-1 rounded-full text-sm",
+                                    product.status === 'SOLD'
+                                        ? "bg-red-500/20 text-red-300"
+                                        : "bg-green-500/20 text-green-300"
+                                )}>
+                                    {product.status === 'SOLD' ? t('sold') : t('available')}
                                 </span>
+                            </div>
+
+                            <div className="text-gold/60 text-sm mb-3">
+                                <p>{locale === 'en' ? product.descriptionEn : product.descriptionIt}</p>
+                            </div>
+
+                            <div className="flex justify-between items-center mt-auto">
+                                <span className="text-gold font-semibold">
+                                    {product.price 
+                                        ? new Intl.NumberFormat(locale, {
+                                            style: 'currency',
+                                            currency: 'EUR',
+                                            maximumFractionDigits: 0
+                                        }).format(product.price)
+                                        : t('priceOnRequest')}
+                                </span>
+                                {soldDateFormatted && (
+                                    <span className="text-gold/40 text-sm">
+                                        {soldDateFormatted}
+                                    </span>
+                                )}
+                            </div>
+                            
+                            {isAdmin && (
+                                <div className="flex justify-end mt-4">
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setIsEditing(true);
+                                        }}
+                                        className="px-4 py-2 rounded-md text-gold border border-gold font-semibold hover:bg-gold/10 focus:outline-none focus:ring-2 focus:ring-gold focus:ring-opacity-50"
+                                    >
+                                        {t('edit')}
+                                    </button>
+                                </div>
                             )}
                         </div>
-                        
-                        {isAdmin && (
-                            <div className="flex justify-end mt-4">
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setIsEditing(true);
-                                    }}
-                                    className="px-4 py-2 rounded-md text-gold border border-gold font-semibold hover:bg-gold/10 focus:outline-none focus:ring-2 focus:ring-gold focus:ring-opacity-50"
-                                >
-                                    {t('edit')}
-                                </button>
-                            </div>
-                        )}
                     </div>
-                </div>
+                </GlareCard>
             )}
         </div>
     );

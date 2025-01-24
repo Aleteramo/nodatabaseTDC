@@ -142,3 +142,56 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.glare-effect {
+  --card-color: 212, 175, 55; /* Colore oro */
+  --card-gradient: linear-gradient(
+    45deg,
+    rgba(var(--card-color), 0.15) 0%,
+    rgba(var(--card-color), 0.05) 50%,
+    rgba(var(--card-color), 0) 100%
+  );
+  --card-shine: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.2) 25%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0.2) 75%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  position: relative;
+  isolation: isolate;
+}
+
+.glare-effect::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--card-gradient);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+  z-index: 1;
+}
+
+.glare-effect::after {
+  content: "";
+  position: absolute;
+  inset: -200%;
+  background: var(--card-shine);
+  opacity: 0;
+  transition: all 0.5s ease;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  z-index: 2;
+}
+
+.glare-effect:hover::before {
+  opacity: 1;
+}
+
+.glare-effect:hover::after {
+  opacity: 0.4;
+  transform: translateX(50%) translateY(50%) rotate(35deg);
+}
