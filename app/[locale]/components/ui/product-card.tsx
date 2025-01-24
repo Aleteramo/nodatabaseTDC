@@ -19,22 +19,28 @@ interface ProductCardProps {
 export function ProductCard({ product, locale, isAdmin = false, onProductUpdate, onProductDelete }: ProductCardProps) {
     const router = useRouter();
     const t = useTranslations('Products');
-    const { data: session } = useSession(); 
+    const { data: session } = useSession();
     const [isEditing, setIsEditing] = useState(false);
-    const [editedProduct, setEditedProduct] = useState<ProductWithTempImages>(product);
+    const [editedProduct, setEditedProduct] = useState<ProductWithTempImages>({
+        ...product,
+        images: product.images || []
+    });
     const [isSaving, setIsSaving] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [soldDateFormatted, setSoldDateFormatted] = useState<string | null>(null);
-    const [newImageFile, setNewImageFile] = useState<File | null>(null); 
-    const imageInputRef = useRef<HTMLInputElement>(null); 
+    const [newImageFile, setNewImageFile] = useState<File | null>(null);
+    const imageInputRef = useRef<HTMLInputElement>(null);
     const refElement = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        setEditedProduct(product);
+        setEditedProduct({
+            ...product,
+            images: product.images || []
+        });
         setErrorMessage(null);
-        setNewImageFile(null); 
+        setNewImageFile(null);
         if (imageInputRef.current) {
-            imageInputRef.current.value = ''; 
+            imageInputRef.current.value = '';
         }
     }, [product]);
 
@@ -76,20 +82,19 @@ export function ProductCard({ product, locale, isAdmin = false, onProductUpdate,
             const file = e.target.files[0];
             setNewImageFile(file);
             
-            // Create a preview URL for immediate display
             const previewUrl = URL.createObjectURL(file);
             setEditedProduct(prev => ({
                 ...prev,
-                images: [...prev.images, { id: 'preview', url: previewUrl, alt: '', isMain: true }]
+                images: [...(prev.images || []), { id: 'preview', url: previewUrl, alt: '', isMain: true }]
             }));
         }
     };
 
-    // Cleanup preview URL when component unmounts or when editing is cancelled
     useEffect(() => {
         return () => {
-            if (editedProduct.images.find(img => img.id === 'preview')) {
-                URL.revokeObjectURL(editedProduct.images.find(img => img.id === 'preview')!.url);
+            const previewImage = editedProduct.images?.find(img => img.id === 'preview');
+            if (previewImage) {
+                URL.revokeObjectURL(previewImage.url);
             }
         };
     }, [editedProduct.images]);
@@ -98,14 +103,18 @@ export function ProductCard({ product, locale, isAdmin = false, onProductUpdate,
         setIsEditing(false);
         setErrorMessage(null);
         // Revert to original product data
-        setEditedProduct(product);
+        setEditedProduct({
+            ...product,
+            images: product.images || []
+        });
         setNewImageFile(null);
         if (imageInputRef.current) {
             imageInputRef.current.value = '';
         }
         // Cleanup any preview URL
-        if (editedProduct.images.find(img => img.id === 'preview')) {
-            URL.revokeObjectURL(editedProduct.images.find(img => img.id === 'preview')!.url);
+        const previewImage = editedProduct.images?.find(img => img.id === 'preview');
+        if (previewImage) {
+            URL.revokeObjectURL(previewImage.url);
         }
     };
 
@@ -113,25 +122,30 @@ export function ProductCard({ product, locale, isAdmin = false, onProductUpdate,
         e.preventDefault();
         setIsSaving(true);
         setErrorMessage(null);
+
         try {
             const formData = new FormData();
             
-            // Add text fields
-            formData.append('titleEn', editedProduct.titleEn || '');
-            formData.append('titleIt', editedProduct.titleIt || '');
-            formData.append('descriptionEn', editedProduct.descriptionEn || '');
-            formData.append('descriptionIt', editedProduct.descriptionIt || '');
-            formData.append('price', editedProduct.price?.toString() || '');
-            formData.append('status', editedProduct.status || 'AVAILABLE');
+            // Aggiungi i campi di testo
+            formData.append('titleEn', editedProduct.titleEn);
+            formData.append('titleIt', editedProduct.titleIt);
+            formData.append('descriptionEn', editedProduct.descriptionEn);
+            formData.append('descriptionIt', editedProduct.descriptionIt);
+            formData.append('price', editedProduct.price.toString());
+            formData.append('status', editedProduct.status);
+            if (editedProduct.brand) formData.append('brand', editedProduct.brand);
+            if (editedProduct.model) formData.append('model', editedProduct.model);
+            if (editedProduct.year) formData.append('year', editedProduct.year.toString());
+            if (editedProduct.condition) formData.append('condition', editedProduct.condition);
             
-            // Add image if selected
+            // Aggiungi la nuova immagine se presente
             if (newImageFile) {
                 formData.append('image', newImageFile);
             }
 
             const response = await fetch(`/api/admin/products/${editedProduct.id}`, {
                 method: 'PUT',
-                body: formData,
+                body: formData
             });
 
             if (!response.ok) {
@@ -140,16 +154,30 @@ export function ProductCard({ product, locale, isAdmin = false, onProductUpdate,
             }
 
             const updatedProductFromServer = await response.json();
-            onProductUpdate?.(updatedProductFromServer);
-            setEditedProduct(updatedProductFromServer);
+            
+            // Aggiorna lo stato locale
+            setEditedProduct({
+                ...updatedProductFromServer,
+                images: updatedProductFromServer.images || []
+            });
+            
+            // Notifica il componente padre
+            if (onProductUpdate) {
+                onProductUpdate(updatedProductFromServer);
+            }
+            
+            // Resetta lo stato
             setIsEditing(false);
             setNewImageFile(null);
             if (imageInputRef.current) {
                 imageInputRef.current.value = '';
             }
+
+            // Forza il refresh della pagina
+            router.refresh();
         } catch (error: any) {
             console.error("Error updating product:", error);
-            setErrorMessage(error.message);
+            setErrorMessage(error.message || 'Failed to update product');
         } finally {
             setIsSaving(false);
         }
