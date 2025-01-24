@@ -34,17 +34,19 @@ export default function LocaleLayout({ children, params: { locale } }: Props) {
   unstable_setRequestLocale(locale); // <---- ADD THIS LINE HERE
 
   return (
-    <html lang={locale}>
+    <html lang={locale} className="bg-black">
       <body className="min-h-screen bg-black text-white">
         <NextIntlClientProvider
           messages={messages[locale as Locale]}
           locale={locale}
         >
           <NextAuthProvider>
-            <Header />
-            <main className="pb-16 sm:pb-0">{children}</main>
-            <Footer />
-            <WhatsAppButton />
+            <div className="flex flex-col min-h-screen bg-black">
+              <Header />
+              <main className="flex-grow bg-black pb-16 sm:pb-0">{children}</main>
+              <Footer />
+              <WhatsAppButton />
+            </div>
           </NextAuthProvider>
         </NextIntlClientProvider>
       </body>

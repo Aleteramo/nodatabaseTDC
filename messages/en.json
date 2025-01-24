@@ -180,9 +180,11 @@
   "Archive": {
     "meta": {
       "title": "Archive - The Duke's Chrono",
-      "description": "Browse our collection of prestigious vintage watches"
+      "description": "Explore our collection of prestigious vintage watches"
     },
     "title": "Our Collection",
-    "description": "Discover our curated selection of prestigious vintage timepieces"
+    "description": "Discover our selection of prestigious vintage watches",
+    "available": "Available",
+    "sold": "Sold"
   }
 }

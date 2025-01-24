@@ -60,8 +60,22 @@
 
 :root {
   --foreground-rgb: 255, 255, 255;
-  --background-start-rgb: 0, 0, 0;
-  --background-end-rgb: 0, 0, 0;
+  --background-rgb: 0, 0, 0;
+}
+
+html {
+  background: rgb(var(--background-rgb));
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+  min-height: 100vh;
+}
+
+#__next {
+  min-height: 100vh;
+  background: rgb(var(--background-rgb));
 }
 
 @layer base {

@@ -149,6 +149,16 @@
     "title": "La Nostra Collezione",
     "description": "Esplora la nostra esclusiva selezione di orologi di prestigio"
   },
+  "Archive": {
+    "meta": {
+      "title": "Archivio - The Duke's Chrono",
+      "description": "Esplora la nostra collezione di orologi vintage di prestigio"
+    },
+    "title": "La Nostra Collezione",
+    "description": "Scopri la nostra selezione di orologi vintage di prestigio",
+    "available": "Disponibili",
+    "sold": "Venduti"
+  },
   "Products": {
     "save": "Salva",
     "cancel": "Annulla",

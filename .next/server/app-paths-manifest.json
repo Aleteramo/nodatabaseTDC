@@ -1,9 +1,4 @@
 {
-  "/not-found": "app/not-found.js",
   "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
-  "/[locale]/archive/page": "app/[locale]/archive/page.js",
-  "/[locale]/login/page": "app/[locale]/login/page.js",
-  "/[locale]/admin/page": "app/[locale]/admin/page.js",
-  "/[locale]/about/page": "app/[locale]/about/page.js",
-  "/[locale]/contact/page": "app/[locale]/contact/page.js"
+  "/[locale]/archive/page": "app/[locale]/archive/page.js"
 }

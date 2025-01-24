@@ -906,6 +906,9 @@ video {
 .flex-1 {
   flex: 1 1 0%;
 }
+.flex-grow {
+  flex-grow: 1;
+}
 .origin-bottom {
   transform-origin: bottom;
 }
@@ -1715,8 +1718,22 @@ video {
 
 :root {
   --foreground-rgb: 255, 255, 255;
-  --background-start-rgb: 0, 0, 0;
-  --background-end-rgb: 0, 0, 0;
+  --background-rgb: 0, 0, 0;
+}
+
+html {
+  background: rgb(var(--background-rgb));
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+  min-height: 100vh;
+}
+
+#__next {
+  min-height: 100vh;
+  background: rgb(var(--background-rgb));
 }
 
 .hover\:scale-105:hover {
