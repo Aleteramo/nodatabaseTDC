@@ -361,6 +361,72 @@ export function ProductCard({ product, locale, isAdmin = false, onProductUpdate,
                         </button>
                     </div>
                 </div>
+            ) : isAdmin ? (
+                <div className="bg-black border border-gold/30 rounded-lg overflow-hidden hover:border-gold/60 transition-all duration-300">
+                    <div className="flex flex-col h-full">
+                        <div className="relative w-full h-64 bg-gray-800 overflow-hidden">
+                            <Image
+                                src={imageUrl}
+                                alt={imageAlt}
+                                priority
+                                width={500}
+                                height={300}
+                                style={{ objectFit: 'contain' }}
+                                className="w-full h-full transition-transform duration-300"
+                            />
+                        </div>
+
+                        <div className="p-6 flex-1 flex flex-col">
+                            <h2 className="text-xl font-bold text-gold mb-2">
+                                {locale === 'en' ? product.titleEn : product.titleIt}
+                            </h2>
+                            
+                            <div className="flex justify-between items-start mb-2">
+                                <span className={cn(
+                                    "inline-block px-3 py-1 rounded-full text-sm",
+                                    product.status === 'SOLD'
+                                        ? "bg-red-500/20 text-red-300"
+                                        : "bg-green-500/20 text-green-300"
+                                )}>
+                                    {product.status === 'SOLD' ? t('sold') : t('available')}
+                                </span>
+                            </div>
+
+                            <div className="text-gold/60 text-sm mb-3">
+                                <p>{locale === 'en' ? product.descriptionEn : product.descriptionIt}</p>
+                            </div>
+
+                            <div className="flex justify-between items-center mt-auto">
+                                <span className="text-gold font-semibold">
+                                    {product.price 
+                                        ? new Intl.NumberFormat(locale, {
+                                            style: 'currency',
+                                            currency: 'EUR',
+                                            maximumFractionDigits: 0
+                                        }).format(product.price)
+                                        : t('priceOnRequest')}
+                                </span>
+                                {soldDateFormatted && (
+                                    <span className="text-gold/40 text-sm">
+                                        {soldDateFormatted}
+                                    </span>
+                                )}
+                            </div>
+                            
+                            <div className="flex justify-end mt-4">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setIsEditing(true);
+                                    }}
+                                    className="px-4 py-2 rounded-md text-gold border border-gold font-semibold hover:bg-gold/10 focus:outline-none focus:ring-2 focus:ring-gold focus:ring-opacity-50"
+                                >
+                                    {t('edit')}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             ) : (
                 <GlareCard className="bg-black">
                     <div className="flex flex-col h-full">
@@ -412,20 +478,6 @@ export function ProductCard({ product, locale, isAdmin = false, onProductUpdate,
                                     </span>
                                 )}
                             </div>
-                            
-                            {isAdmin && (
-                                <div className="flex justify-end mt-4">
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setIsEditing(true);
-                                        }}
-                                        className="px-4 py-2 rounded-md text-gold border border-gold font-semibold hover:bg-gold/10 focus:outline-none focus:ring-2 focus:ring-gold focus:ring-opacity-50"
-                                    >
-                                        {t('edit')}
-                                    </button>
-                                </div>
-                            )}
                         </div>
                     </div>
                 </GlareCard>

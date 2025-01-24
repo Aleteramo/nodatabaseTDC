@@ -1859,6 +1859,16 @@ body {
   transform: translateX(50%) translateY(50%) rotate(35deg);
 }
 
+.after\:absolute::after {
+  content: var(--tw-content);
+  position: absolute;
+}
+
+.after\:inset-0::after {
+  content: var(--tw-content);
+  inset: 0px;
+}
+
 .after\:bg-\[inherit\]::after {
   content: var(--tw-content);
   background-color: inherit;
