@@ -1,35 +1,43 @@
 // app/api/products/route.ts
 
 import { PrismaClient } from '@prisma/client';
-import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { revalidatePath } from 'next/cache';
 
 const prisma = new PrismaClient();
 
 // GET: Fetch all products
-export async function GET() {
+export async function GET(): Promise<Response> {
   try {
     const products = await prisma.product.findMany({
       include: {
         images: true
       }
     });
-    return NextResponse.json(products, { status: 200 });
+    return new Response(JSON.stringify(products), { 
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
   } catch (error) {
     console.error("Error loading products:", error);
-    return NextResponse.json({ error: 'Unable to load products' }, { status: 500 });
+    return new Response(JSON.stringify({ error: 'Unable to load products' }), { 
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   } finally {
     await prisma.$disconnect();
   }
 }
 
 // POST: Create a new product
-export async function POST(request: Request) {
+export async function POST(request: Request): Promise<Response> {
   try {
     const session = await getServerSession();
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     const data = await request.json();
@@ -40,7 +48,10 @@ export async function POST(request: Request) {
     });
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return new Response(JSON.stringify({ error: 'User not found' }), { 
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     const product = await prisma.product.create({
@@ -75,19 +86,28 @@ export async function POST(request: Request) {
     revalidatePath('/[locale]/archive');
     revalidatePath('/[locale]/admin');
     
-    return NextResponse.json(product, { status: 201 });
+    return new Response(JSON.stringify(product), { 
+      status: 201,
+      headers: { 'Content-Type': 'application/json' }
+    });
   } catch (error) {
     console.error("Error creating product:", error);
-    return NextResponse.json({ error: 'Unable to create product' }, { status: 500 });
+    return new Response(JSON.stringify({ error: 'Unable to create product' }), { 
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 }
 
 // PUT: Update an existing product
-export async function PUT(request: Request) {
+export async function PUT(request: Request): Promise<Response> {
   try {
     const session = await getServerSession();
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     const data = await request.json();
@@ -114,26 +134,38 @@ export async function PUT(request: Request) {
     revalidatePath('/[locale]/archive');
     revalidatePath('/[locale]/admin');
 
-    return NextResponse.json(product, { status: 200 });
+    return new Response(JSON.stringify(product), { 
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
   } catch (error) {
     console.error("Error updating product:", error);
-    return NextResponse.json({ error: 'Unable to update product' }, { status: 500 });
+    return new Response(JSON.stringify({ error: 'Unable to update product' }), { 
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 }
 
 // DELETE: Remove a product
-export async function DELETE(request: Request) {
+export async function DELETE(request: Request): Promise<Response> {
   try {
     const session = await getServerSession();
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 
     if (!id) {
-      return NextResponse.json({ error: 'Product ID is required' }, { status: 400 });
+      return new Response(JSON.stringify({ error: 'Product ID is required' }), { 
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     await prisma.product.delete({
@@ -143,12 +175,20 @@ export async function DELETE(request: Request) {
     revalidatePath('/[locale]/archive');
     revalidatePath('/[locale]/admin');
 
-    return NextResponse.json({ message: 'Product deleted successfully' }, { status: 200 });
+    return new Response(JSON.stringify({ message: 'Product deleted successfully' }), { 
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
   } catch (error) {
     console.error("Error deleting product:", error);
-    return NextResponse.json({ error: 'Unable to delete product' }, { status: 500 });
+    return new Response(JSON.stringify({ error: 'Unable to delete product' }), { 
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
-}import { v2 as cloudinary } from 'cloudinary';
+}
+
+import { v2 as cloudinary } from 'cloudinary';
 
 (async function() {
 
