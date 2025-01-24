@@ -1,7 +1,6 @@
-import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 
-export async function POST(request: Request) {
+export async function POST(request: Request): Promise<Response> {
   // Debug delle variabili d'ambiente
   console.log('DEBUG - Environment Variables:');
   console.log('GMAIL_USER exists:', !!process.env.GMAIL_USER);
@@ -25,9 +24,12 @@ export async function POST(request: Request) {
     console.error('Missing email configuration - Details:');
     console.error('GMAIL_USER:', typeof process.env.GMAIL_USER);
     console.error('GMAIL_APP_PASSWORD:', typeof process.env.GMAIL_APP_PASSWORD);
-    return NextResponse.json(
-      { error: 'Server configuration error' },
-      { status: 500 }
+    return new Response(
+      JSON.stringify({ error: 'Server configuration error' }),
+      { 
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      }
     );
   }
 
@@ -60,12 +62,21 @@ export async function POST(request: Request) {
     };
 
     await transporter.sendMail(mailOptions);
-    return NextResponse.json({ message: 'Email inviata con successo' });
+    return new Response(
+      JSON.stringify({ message: 'Email sent successfully' }),
+      { 
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
   } catch (error) {
     console.error('Errore nell\'invio dell\'email:', error);
-    return NextResponse.json(
-      { error: 'Errore nell\'invio dell\'email' },
-      { status: 500 }
+    return new Response(
+      JSON.stringify({ error: 'Errore nell\'invio dell\'email' }),
+      { 
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      }
     );
   }
 }
