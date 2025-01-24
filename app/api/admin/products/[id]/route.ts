@@ -15,13 +15,13 @@ interface Params {
   params: { id: string };
 }
 
-export async function PUT(req: Request, { params }: Params) {
+export async function PUT(req: Request, { params }: Params): Promise<Response> {
   console.log('PUT request received for product:', params.id);
   
   const session = await getServerSession(authOptions);
 
   if (!session?.user || session.user.role !== "ADMIN") {
-    return new NextResponse(JSON.stringify({ message: "Unauthorized" }), {
+    return new Response(JSON.stringify({ message: "Unauthorized" }), {
       status: 401,
       headers: { "Content-Type": "application/json" },
     });
@@ -107,10 +107,13 @@ export async function PUT(req: Request, { params }: Params) {
     });
 
     console.log('Product updated successfully:', updatedProduct);
-    return NextResponse.json(updatedProduct);
+    return new Response(JSON.stringify({ message: "Product updated successfully", product: updatedProduct }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error: any) {
     console.error("Error updating product:", error);
-    return new NextResponse(JSON.stringify({ message: error.message }), {
+    return new Response(JSON.stringify({ message: error.message }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
