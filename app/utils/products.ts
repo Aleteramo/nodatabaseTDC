@@ -55,43 +55,39 @@ export function formatDate(dateString?: string | Date): string | undefined {
 }
 
 export async function getAvailableProducts(): Promise<ProductWithImages[]> {
-  try {
-    console.log('Fetching available products...');
-    const availableProducts = await prisma.product.findMany({
-      where: { status: 'AVAILABLE' },
-      include: { 
-        images: true
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
-    console.log('Raw available products:', availableProducts);
+  const products = await prisma.product.findMany({
+    where: {
+      status: 'AVAILABLE'
+    },
+    include: {
+      images: true
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  }) as (PrismaProduct & { images: Image[] })[];
 
-    return availableProducts;
-  } catch (error) {
-    console.error("Error:", error);
-    return [];
-  }
+  return products.map(product => ({
+    ...product,
+    images: product.images || []
+  }));
 }
 
 export async function getSoldProducts(): Promise<ProductWithImages[]> {
-  try {
-    console.log('Fetching sold products...');
-    const soldProducts = await prisma.product.findMany({
-      where: { status: 'SOLD' },
-      include: { 
-        images: true
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
-    console.log('Raw sold products:', soldProducts);
+  const products = await prisma.product.findMany({
+    where: {
+      status: 'SOLD'
+    },
+    include: {
+      images: true
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  }) as (PrismaProduct & { images: Image[] })[];
 
-    return soldProducts;
-  } catch (error) {
-    console.error("Error:", error);
-    return [];
-  }
+  return products.map(product => ({
+    ...product,
+    images: product.images || []
+  }));
 }

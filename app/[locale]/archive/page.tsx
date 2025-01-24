@@ -4,6 +4,10 @@ import { ProductCard } from '../components/ui/product-card';
 import { getSoldProducts, getAvailableProducts, ProductWithImages } from '@/app/utils/products';
 import { locales, type Locale } from '@/i18n';
 
+// Disable static page generation
+export const revalidate = 0;
+export const dynamic = 'force-dynamic';
+
 type Props = {
  params: { locale: Locale }
 };
