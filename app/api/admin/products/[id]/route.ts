@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth.config';
 import prisma from '@/lib/prisma';
 import { v2 as cloudinary } from 'cloudinary';
+import { ProductWithImages } from '@/app/utils/products';
 
 // Configura Cloudinary
 cloudinary.config({
@@ -43,6 +44,10 @@ export async function PUT(req: Request, { params }: Params): Promise<Response> {
       const status = formData.get('status') as string;
       updateData.status = status;
     }
+    if (formData.has('brand')) updateData.brand = formData.get('brand') as string || null;
+    if (formData.has('model')) updateData.model = formData.get('model') as string || null;
+    if (formData.has('year')) updateData.year = formData.get('year') ? parseInt(formData.get('year') as string, 10) : null;
+    if (formData.has('condition')) updateData.condition = formData.get('condition') as string || null;
     
     // Handle image file
     const imageFile = formData.get('image') as File | null;
@@ -97,7 +102,7 @@ export async function PUT(req: Request, { params }: Params): Promise<Response> {
       console.log('Image uploaded to Cloudinary:', cloudinaryUrl);
     }
 
-    const updatedProduct = await prisma.product.update({
+    const updatedProduct: ProductWithImages = await prisma.product.update({
       where: { id: productId },
       data: updateData,
       include: {

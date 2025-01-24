@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { unstable_setRequestLocale } from 'next-intl/server';
 import { ProductCard } from '../components/ui/product-card';
-import { getSoldProducts, getAvailableProducts } from '@/app/utils/products';
+import { getSoldProducts, getAvailableProducts, ProductWithImages } from '@/app/utils/products';
 import { locales, type Locale } from '@/i18n';
 
 type Props = {
@@ -25,9 +25,9 @@ export default async function ArchivePage({ params: { locale } }: Props) {
  unstable_setRequestLocale(locale);
  const t = await getTranslations('Archive');
 
- const soldPieces = await getSoldProducts();
- const availablePieces = await getAvailableProducts();
- const allPieces = [...availablePieces, ...soldPieces];
+ const soldPieces: ProductWithImages[] = await getSoldProducts();
+ const availablePieces: ProductWithImages[] = await getAvailableProducts();
+ const allPieces: ProductWithImages[] = [...availablePieces, ...soldPieces];
 
  console.log('DEBUG - Query results:', { 
   soldPieces, 

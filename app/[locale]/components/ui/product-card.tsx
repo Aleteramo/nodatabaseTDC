@@ -4,19 +4,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { cn } from "@/lib/utils";
-import { Product } from '@prisma/client';
+import { Product, ProductWithImages, ProductWithTempImages, TempImage } from '@/app/utils/products';
 import { useTranslations } from 'next-intl';
 import { useSession } from 'next-auth/react';
 
 interface ProductCardProps {
-    product: Product & {
-        images: {
-            id: string;
-            url: string;
-            alt?: string | null;
-            isMain: boolean;
-        }[];
-    };
+    product: ProductWithImages;
     locale: string;
     isAdmin?: boolean;
     onProductUpdate?: (updatedProduct: Product) => void;
@@ -26,22 +19,22 @@ interface ProductCardProps {
 export function ProductCard({ product, locale, isAdmin = false, onProductUpdate, onProductDelete }: ProductCardProps) {
     const router = useRouter();
     const t = useTranslations('Products');
-    const { data: session } = useSession(); // Ottieni la sessione utente
+    const { data: session } = useSession(); 
     const [isEditing, setIsEditing] = useState(false);
-    const [editedProduct, setEditedProduct] = useState<Product & { images: { id: string; url: string; alt?: string | null; isMain: boolean; }[] }>(product);
+    const [editedProduct, setEditedProduct] = useState<ProductWithTempImages>(product);
     const [isSaving, setIsSaving] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [soldDateFormatted, setSoldDateFormatted] = useState<string | null>(null);
-    const [newImageFile, setNewImageFile] = useState<File | null>(null); // Stato per il nuovo file immagine
-    const imageInputRef = useRef<HTMLInputElement>(null); // Ref per l'input file immagine
+    const [newImageFile, setNewImageFile] = useState<File | null>(null); 
+    const imageInputRef = useRef<HTMLInputElement>(null); 
     const refElement = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         setEditedProduct(product);
         setErrorMessage(null);
-        setNewImageFile(null); // Resetta il file immagine quando il prodotto cambia
+        setNewImageFile(null); 
         if (imageInputRef.current) {
-            imageInputRef.current.value = ''; // Resetta il valore dell'input file
+            imageInputRef.current.value = ''; 
         }
     }, [product]);
 
@@ -163,10 +156,10 @@ export function ProductCard({ product, locale, isAdmin = false, onProductUpdate,
     };
 
     const handleDelete = async () => {
-        setIsSaving(true); // Riusa isSaving state per l'operazione di cancellazione
+        setIsSaving(true); 
         setErrorMessage(null);
         try {
-            const response = await fetch(`/api/admin/products/${product.id}`, { // Usa product.id per la cancellazione
+            const response = await fetch(`/api/admin/products/${product.id}`, { 
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
             });
@@ -176,7 +169,7 @@ export function ProductCard({ product, locale, isAdmin = false, onProductUpdate,
                 throw new Error(errorData?.message || `Failed to delete product: ${response.status}`);
             }
 
-            onProductDelete?.(product.id); // Chiama la callback onProductDelete passando l'ID del prodotto cancellato
+            onProductDelete?.(product.id); 
             setIsEditing(false);
 
 

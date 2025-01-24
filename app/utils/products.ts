@@ -1,11 +1,26 @@
 import prisma from '@/lib/prisma';
 import { Product as PrismaProduct, Image as PrismaImage, Prisma } from '@prisma/client';
 
-interface Image extends PrismaImage {}
+export interface Image extends PrismaImage {}
+
+export interface TempImage {
+  id: string;
+  url: string;
+  alt?: string | null;
+  isMain: boolean;
+}
 
 export interface Product extends PrismaProduct {
   images: Image[];
 }
+
+export type ProductWithImages = Product & {
+  images: Image[];
+};
+
+export type ProductWithTempImages = Omit<Product, 'images'> & {
+  images: (Image | TempImage)[];
+};
 
 export type ProductCreateInput = {
   titleEn: string;
@@ -39,7 +54,7 @@ export function formatDate(dateString?: string | Date): string | undefined {
   });
 }
 
-export async function getAvailableProducts(): Promise<(Product & { images: Image[] })[]> {
+export async function getAvailableProducts(): Promise<ProductWithImages[]> {
   try {
     console.log('Fetching available products...');
     const availableProducts = await prisma.product.findMany({
@@ -60,7 +75,7 @@ export async function getAvailableProducts(): Promise<(Product & { images: Image
   }
 }
 
-export async function getSoldProducts(): Promise<(Product & { images: Image[] })[]> {
+export async function getSoldProducts(): Promise<ProductWithImages[]> {
   try {
     console.log('Fetching sold products...');
     const soldProducts = await prisma.product.findMany({
