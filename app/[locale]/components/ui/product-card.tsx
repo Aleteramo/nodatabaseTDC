@@ -209,9 +209,9 @@ export function ProductCard({ product, locale, isAdmin = false, onProductUpdate,
         }
     };
 
-    const mainImage = editedProduct.images.find(img => img.isMain) || editedProduct.images[0];
-    const imageUrl = mainImage?.url || '/placeholder.jpg';
-    const imageAlt = mainImage?.alt || locale === 'en' ? editedProduct.titleEn : editedProduct.titleIt;
+    const mainImage = editedProduct.images?.find(img => img.isMain) || editedProduct.images?.[0];
+    const imageUrl = mainImage?.url || '/images/placeholder.jpg';
+    const imageAlt = mainImage?.alt || (locale === 'en' ? editedProduct.titleEn : editedProduct.titleIt) || '';
 
     return (
         <div
