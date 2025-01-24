@@ -37,7 +37,7 @@ export function formatDate(dateString?: string | Date): string | undefined {
   });
 }
 
-export async function getAvailableProducts(): Promise<Product[]> {
+export async function getAvailableProducts(): Promise<(Product & { images: Image[] })[]> {
   try {
     console.log('Fetching available products...');
     const availableProducts = await prisma.product.findMany({
@@ -45,6 +45,9 @@ export async function getAvailableProducts(): Promise<Product[]> {
       include: { 
         images: true
       },
+      orderBy: {
+        createdAt: 'desc'
+      }
     });
     console.log('Raw available products:', availableProducts);
 
@@ -55,7 +58,7 @@ export async function getAvailableProducts(): Promise<Product[]> {
   }
 }
 
-export async function getSoldProducts(): Promise<Product[]> {
+export async function getSoldProducts(): Promise<(Product & { images: Image[] })[]> {
   try {
     console.log('Fetching sold products...');
     const soldProducts = await prisma.product.findMany({
@@ -63,6 +66,9 @@ export async function getSoldProducts(): Promise<Product[]> {
       include: { 
         images: true
       },
+      orderBy: {
+        createdAt: 'desc'
+      }
     });
     console.log('Raw sold products:', soldProducts);
 
